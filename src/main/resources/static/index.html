@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment</title>
+    <meta name="viewport" content=
+            "width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href=
+            "https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+          integrity=
+                  "sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk"
+          crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+            crossorigin="anonymous"></script>
+    <link href=
+                  "https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"
+          rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href=
+            "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+
+    <script>
+
+        function onSubmit(token) {
+            document.getElementById("demo-form").submit();
+        }
+
+    </script>
+    <title>Bootstrap Datepicker</title>
+    <link rel="stylesheet" href="IndexStyle.css">
+
+</head>
+
+<body class="align-items-center" onload="generate()">
+
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="container row py-3 m-5 d-flex justify-content-center align-items-center bg-info">
+
+        <form action="http://localhost:8080/customer/pay" method="post" id="demo-form">
+
+            <div class="form-group">
+                <label for="cardNumber">card number</label>
+                <input type="text" class="form-control" id="cardNumber" maxlength="16" spellcheck="false" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cvv2">cvv2</label>
+                <input type="text" class="form-control" id="cvv2" maxlength="4" spellcheck="false" required>
+            </div>
+
+            <div class="form-group">
+                <label for="orderCode">order code</label>
+                <input type="text" class="form-control" id="orderCode" maxlength="12" spellcheck="false" required>
+            </div>
+
+            <br>
+
+            <div class="form-group">
+                <label>Expiry date: </label>
+                <div id="datepicker"
+                     class="input-group date"
+                     data-date-format="mm-dd-yyyy">
+                    <input id="expiryDate" class="form-control"
+                           type="text" readonly/>
+                    <span class="input-group-addon">
+                <i class="glyphicon glyphicon-calendar"></i>
+            </span>
+                </div>
+            </div>
+
+            <br>
+
+            <div id="user-input" class="inline">
+                <input type="text" id="submit-part"
+                       placeholder="Captcha code"/>
+            </div>
+
+            <div class="inline" onclick="generate()">
+                <i class="fas fa-sync"></i>
+            </div>
+
+            <div id="image" class="inline" selectable="False">
+            </div>
+            <input type="submit" id="btn" onclick="printmsg()"/>
+
+            <p id="key"></p>
+
+            <button id="submit" class="g-recaptcha my-3 rounded-4 form-control w-25 btn btn-primary text-light"
+                    data-sitekey="6LducFAkAAAAAJLh_LqBgz64hUrn0s5w-Z5TE4J9"
+                    data-callback='onSubmit'
+                    data-action='submit'
+                    role="button">Pay
+            </button>
+
+        </form>
+
+    </div>
+
+    <div id="app"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity=
+                "sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ="
+        crossorigin="anonymous">
+</script>
+<script>
+    $(function () {
+        $("#datepicker").datepicker({
+            autoclose: true,
+            todayHighlight: true,
+        }).datepicker('update', new Date());
+    });
+</script>
+<script src=
+                "https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity=
+                "sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous">
+</script>
+<script src=
+                "https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity=
+                "sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js">
+</script>
+
+<script>
+
+    $('#submit').on('click', function (e) {
+        e.preventDefault();
+        const cardNumber = document.getElementById("cardNumber");
+        const cvv2 = document.getElementById("cvv2");
+        const orderCode = document.getElementById("orderCode");
+        const expiryDate = document.getElementById("expiryDate");
+
+        const form = new FormData();
+        form.append("cardNumber", cardNumber.value);
+        form.append("cvv2", cvv2.value);
+        form.append("orderCode", orderCode.value);
+        form.append("expiryDate", expiryDate.value);
+
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8080/customer/pay",
+            data: form,
+            processData: false,
+            contentType: false,
+            dataType: "text",
+            success: function (response) {
+                e.preventDefault();
+                alert("success")
+            }, error: function (jqXHR, textStatus, errorThrown) {
+                e.preventDefault();
+                alert("error")
+            }
+        });
+    })
+
+    //timer
+
+    const FULL_DASH_ARRAY = 283;
+    const WARNING_THRESHOLD = 10;
+    const ALERT_THRESHOLD = 5;
+
+    const COLOR_CODES = {
+        info: {
+            color: "green"
+        },
+        warning: {
+            color: "orange",
+            threshold: WARNING_THRESHOLD
+        },
+        alert: {
+            color: "red",
+            threshold: ALERT_THRESHOLD
+        }
+    };
+
+    const TIME_LIMIT = 600;
+    let timePassed = 0;
+    let timeLeft = TIME_LIMIT;
+    let timerInterval = null;
+    let remainingPathColor = COLOR_CODES.info.color;
+
+    document.getElementById("app").innerHTML = `
+<div class="base-timer">
+  <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <g class="base-timer__circle">
+      <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+      <path
+        id="base-timer-path-remaining"
+        stroke-dasharray="283"
+        class="base-timer__path-remaining ${remainingPathColor}"
+        d="
+          M 50, 50
+          m -45, 0
+          a 45,45 0 1,0 90,0
+          a 45,45 0 1,0 -90,0
+        "
+      ></path>
+    </g>
+  </svg>
+  <span id="base-timer-label" class="base-timer__label">${formatTime(
+        timeLeft
+    )}</span>
+</div>
+`;
+
+    startTimer();
+
+    function onTimesUp() {
+        clearInterval(timerInterval);
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timePassed = timePassed += 1;
+            timeLeft = TIME_LIMIT - timePassed;
+            document.getElementById("base-timer-label").innerHTML = formatTime(
+                timeLeft
+            );
+            setCircleDasharray();
+            setRemainingPathColor(timeLeft);
+
+            if (timeLeft === 0) {
+                onTimesUp();
+            }
+        }, 1000);
+    }
+
+    function formatTime(time) {
+        const minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+
+        if (seconds < 10) {
+            seconds = `0${seconds}`;
+        }
+        return `${minutes}:${seconds}`;
+    }
+
+    function setRemainingPathColor(timeLeft) {
+        const {alert, warning, info} = COLOR_CODES;
+        if (timeLeft <= alert.threshold) {
+            document
+                .getElementById("base-timer-path-remaining")
+                .classList.remove(warning.color);
+            document
+                .getElementById("base-timer-path-remaining")
+                .classList.add(alert.color);
+        } else if (timeLeft <= warning.threshold) {
+            document
+                .getElementById("base-timer-path-remaining")
+                .classList.remove(info.color);
+            document
+                .getElementById("base-timer-path-remaining")
+                .classList.add(warning.color);
+        }
+    }
+
+    function calculateTimeFraction() {
+        const rawTimeFraction = timeLeft / TIME_LIMIT;
+        if (rawTimeFraction === 0)
+            window.close();
+        return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
+    }
+
+    function setCircleDasharray() {
+        const circleDasharray = `${(
+            calculateTimeFraction() * FULL_DASH_ARRAY
+        ).toFixed(0)} 283`;
+        document
+            .getElementById("base-timer-path-remaining")
+            .setAttribute("stroke-dasharray", circleDasharray);
+    }
+
+    var captcha;
+
+    function generate() {
+
+        // Clear old input
+        document.getElementById("submit-part").value = "";
+
+        // Access the element to store
+        // the generated captcha
+        captcha = document.getElementById("image");
+        var uniquechar = "";
+
+        const randomchar =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        // Generate captcha for length of
+        // 5 with random character
+        for (let i = 1; i < 5; i++) {
+            uniquechar += randomchar.charAt(
+                Math.random() * randomchar.length)
+        }
+
+        // Store generated input
+        captcha.innerHTML = uniquechar;
+    }
+
+    var errormsg = 3;
+
+    function printmsg() {
+        const usr_input = document
+            .getElementById("submit-part").value;
+
+        // Check whether the input is equal
+        // to generated captcha or not
+        if (usr_input == captcha.innerHTML) {
+            var s = document.getElementById("key")
+                .innerHTML = "Matched";
+            generate();
+        } else {
+            var s = document.getElementById("key")
+                .innerHTML = "not Matched, you can try " + errormsg + " times";
+            errormsg--;
+            generate();
+        }
+        if (errormsg === -1)
+            window.close();
+    }
+
+</script>
+
+</body>
+</html>
