@@ -1,12 +1,12 @@
 package ir.maktab.forthphase.service;
 
-import ir.maktab.thirdphase.data.dto.AdminLoginDto;
-import ir.maktab.thirdphase.data.dto.searchrequest.ExpertSearchRequest;
-import ir.maktab.thirdphase.data.dto.searchrequest.UserSearchRequest;
-import ir.maktab.thirdphase.data.model.*;
-import ir.maktab.thirdphase.data.repository.AdminRepository;
-import ir.maktab.thirdphase.exceptions.InvalidPasswordException;
-import ir.maktab.thirdphase.exceptions.NoSuchUserFound;
+import ir.maktab.forthphase.data.dto.AdminLoginDto;
+import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
+import ir.maktab.forthphase.data.dto.searchrequest.UserSearchRequest;
+import ir.maktab.forthphase.data.model.*;
+import ir.maktab.forthphase.data.repository.AdminRepository;
+import ir.maktab.forthphase.exceptions.InvalidPasswordException;
+import ir.maktab.forthphase.exceptions.NoSuchUserFound;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static ir.maktab.thirdphase.data.model.enums.ExpertStatus.ACCEPTED;
+import static ir.maktab.forthphase.data.model.enums.ExpertStatus.ACCEPTED;
 
 @Service
 @RequiredArgsConstructor

@@ -1,8 +1,8 @@
 package ir.maktab.forthphase.data.repository;
 
-import ir.maktab.thirdphase.data.dto.searchrequest.ExpertSearchRequest;
-import ir.maktab.thirdphase.data.model.Expert;
-import ir.maktab.thirdphase.data.model.enums.ExpertStatus;
+import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
+import ir.maktab.forthphase.data.model.Expert;
+import ir.maktab.forthphase.data.model.enums.ExpertStatus;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;

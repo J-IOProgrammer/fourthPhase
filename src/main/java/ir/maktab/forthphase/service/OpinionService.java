@@ -1,7 +1,7 @@
 package ir.maktab.forthphase.service;
 
-import ir.maktab.thirdphase.data.repository.OpinionRepository;
-import ir.maktab.thirdphase.util.OpinionUtil;
+import ir.maktab.forthphase.data.repository.OpinionRepository;
+import ir.maktab.forthphase.util.OpinionUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

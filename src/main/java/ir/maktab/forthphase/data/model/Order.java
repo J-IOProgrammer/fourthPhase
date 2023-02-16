@@ -1,6 +1,6 @@
 package ir.maktab.forthphase.data.model;
 
-import ir.maktab.thirdphase.data.model.enums.OrderStatus;
+import ir.maktab.forthphase.data.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

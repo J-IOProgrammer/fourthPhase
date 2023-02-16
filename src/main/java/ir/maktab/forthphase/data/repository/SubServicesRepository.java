@@ -1,6 +1,6 @@
 package ir.maktab.forthphase.data.repository;
 
-import ir.maktab.thirdphase.data.model.SubServices;
+import ir.maktab.forthphase.data.model.SubServices;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -1,6 +1,6 @@
 package ir.maktab.forthphase.util;
 
-import ir.maktab.thirdphase.data.model.Proposal;
+import ir.maktab.forthphase.data.model.Proposal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,8 +1,8 @@
 package ir.maktab.forthphase.data.repository;
 
-import ir.maktab.thirdphase.data.model.Customer;
-import ir.maktab.thirdphase.data.model.Order;
-import ir.maktab.thirdphase.data.model.enums.OrderStatus;
+import ir.maktab.forthphase.data.model.Customer;
+import ir.maktab.forthphase.data.model.Order;
+import ir.maktab.forthphase.data.model.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

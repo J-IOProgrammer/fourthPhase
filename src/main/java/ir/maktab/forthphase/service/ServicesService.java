@@ -1,9 +1,9 @@
 package ir.maktab.forthphase.service;
 
-import ir.maktab.thirdphase.data.model.Services;
-import ir.maktab.thirdphase.data.repository.ServiceRepository;
-import ir.maktab.thirdphase.exceptions.DuplicateServiceNameException;
-import ir.maktab.thirdphase.exceptions.ServiceNameNotFoundException;
+import ir.maktab.forthphase.data.model.Services;
+import ir.maktab.forthphase.data.repository.ServiceRepository;
+import ir.maktab.forthphase.exceptions.DuplicateServiceNameException;
+import ir.maktab.forthphase.exceptions.ServiceNameNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

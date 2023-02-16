@@ -1,7 +1,7 @@
 package ir.maktab.forthphase.util;
 
-import ir.maktab.thirdphase.data.dto.ExpertLoginDto;
-import ir.maktab.thirdphase.data.model.Expert;
+import ir.maktab.forthphase.data.dto.ExpertLoginDto;
+import ir.maktab.forthphase.data.model.Expert;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

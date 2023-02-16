@@ -1,7 +1,7 @@
 package ir.maktab.forthphase.data.repository;
 
-import ir.maktab.thirdphase.data.dto.searchrequest.UserSearchRequest;
-import ir.maktab.thirdphase.data.model.Customer;
+import ir.maktab.forthphase.data.dto.searchrequest.UserSearchRequest;
+import ir.maktab.forthphase.data.model.Customer;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;

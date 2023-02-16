@@ -1,10 +1,10 @@
 package ir.maktab.forthphase.service;
 
-import ir.maktab.thirdphase.data.model.Services;
-import ir.maktab.thirdphase.data.model.SubServices;
-import ir.maktab.thirdphase.data.repository.SubServicesRepository;
-import ir.maktab.thirdphase.exceptions.DuplicateSubServiceNameException;
-import ir.maktab.thirdphase.exceptions.SubServiceNameNotFoundException;
+import ir.maktab.forthphase.data.model.Services;
+import ir.maktab.forthphase.data.model.SubServices;
+import ir.maktab.forthphase.data.repository.SubServicesRepository;
+import ir.maktab.forthphase.exceptions.DuplicateSubServiceNameException;
+import ir.maktab.forthphase.exceptions.SubServiceNameNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

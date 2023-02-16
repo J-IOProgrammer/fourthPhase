@@ -1,6 +1,6 @@
 package ir.maktab.forthphase.data.repository;
 
-import ir.maktab.thirdphase.data.model.Opinion;
+import ir.maktab.forthphase.data.model.Opinion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

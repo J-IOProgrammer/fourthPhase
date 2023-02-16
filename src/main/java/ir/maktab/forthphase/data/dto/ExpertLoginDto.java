@@ -1,7 +1,7 @@
 package ir.maktab.forthphase.data.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import ir.maktab.thirdphase.data.model.enums.ExpertStatus;
+import ir.maktab.forthphase.data.model.enums.ExpertStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

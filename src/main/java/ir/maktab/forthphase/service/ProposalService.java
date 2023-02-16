@@ -1,8 +1,8 @@
 package ir.maktab.forthphase.service;
 
-import ir.maktab.thirdphase.data.model.Proposal;
-import ir.maktab.thirdphase.data.repository.ProposalRepository;
-import ir.maktab.thirdphase.exceptions.NoSuchProposalFoundException;
+import ir.maktab.forthphase.data.model.Proposal;
+import ir.maktab.forthphase.data.repository.ProposalRepository;
+import ir.maktab.forthphase.exceptions.NoSuchProposalFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

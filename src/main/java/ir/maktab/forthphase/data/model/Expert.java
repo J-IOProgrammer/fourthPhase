@@ -1,6 +1,6 @@
 package ir.maktab.forthphase.data.model;
 
-import ir.maktab.thirdphase.data.model.enums.ExpertStatus;
+import ir.maktab.forthphase.data.model.enums.ExpertStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
