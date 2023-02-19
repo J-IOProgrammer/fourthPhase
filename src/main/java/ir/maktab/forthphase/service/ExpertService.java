@@ -2,6 +2,7 @@ package ir.maktab.forthphase.service;
 
 import ir.maktab.forthphase.config.MessageSourceConfiguration;
 import ir.maktab.forthphase.data.dto.ExpertLoginDto;
+import ir.maktab.forthphase.data.dto.ExpertSaveRequestDto;
 import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
 import ir.maktab.forthphase.data.model.Expert;
 import ir.maktab.forthphase.data.model.Order;
@@ -21,7 +22,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +64,7 @@ public class ExpertService {
         Optional<Expert> byEmail = expertRepository.findByEmail(expert.getEmail());
         if (byEmail.isPresent())
             throw new DuplicateEmailException();
+
         expert.setExpertStatus(NEW);
         expertRepository.save(expert);
     }
@@ -225,6 +230,22 @@ public class ExpertService {
             expertByEmail.setRating(5);
         expertByEmail.setRating(expertRate);
         expertRepository.save(expertByEmail);
+    }
+
+    public Expert PrepareNewObject(ExpertSaveRequestDto requestDto){
+        if (!ExpertUtil.checkImageSize(requestDto.getImage()))
+            throw new ImageSizeException();
+        BufferedImage image;
+        byte[] jpgs;
+        try {
+            image = ImageIO.read(new File(requestDto.getImage()));
+            jpgs = ExpertUtil.toByteArray(image, "jpg");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Expert expert = modelMapper.map(requestDto, Expert.class);
+        expert.setImage(jpgs);
+        return expert;
     }
 
     private Expert findMaxRating() {

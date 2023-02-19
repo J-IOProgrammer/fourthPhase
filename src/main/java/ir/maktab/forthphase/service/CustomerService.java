@@ -152,6 +152,8 @@ public class CustomerService {
 
     public void addOpinionForOrder(Opinion opinion, String orderCode) {
         Order orderByCode = orderService.findOrderByCode(orderCode);
+        if (Objects.nonNull(orderByCode.getOpinion()))
+            throw new DuplicateOpinionAddingException();
         orderByCode.setOpinion(opinion);
         Expert expert = expertService.addOpinionOnAcceptedOrder(orderByCode.getAcceptedExpertEmail());
         opinion.setExpert(expert);
