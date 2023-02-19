@@ -8,17 +8,11 @@ import ir.maktab.forthphase.data.model.Proposal;
 import ir.maktab.forthphase.exceptions.InvalidRequestForDoNotExistSubServiceException;
 import ir.maktab.forthphase.exceptions.SendProposalOnInvalidSubServiceException;
 import ir.maktab.forthphase.service.ExpertService;
-import ir.maktab.forthphase.util.ExpertUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 @RestController
 @Slf4j
@@ -40,18 +34,7 @@ public class ExpertController {
     @PostMapping("/new")
     public String addNewExpert(@RequestBody ExpertSaveRequestDto saveRequestDto) {
         log.info("... adding new customer with info: '{}' ...", saveRequestDto);
-        if (!ExpertUtil.checkImageSize(saveRequestDto.getImage()))
-            return messageSource.getMessage("errors.message.image_size_not_ok");
-        BufferedImage image;
-        byte[] jpgs;
-        try {
-            image = ImageIO.read(new File(saveRequestDto.getImage()));
-            jpgs = ExpertUtil.toByteArray(image, "jpg");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        Expert expert = modelMapper.map(saveRequestDto, Expert.class);
-        expert.setImage(jpgs);
+        Expert expert = expertService.PrepareNewObject(saveRequestDto);
         expertService.register(expert);
         return messageSource.getMessage("ok.message.successful_operation");
     }
@@ -103,5 +86,11 @@ public class ExpertController {
     public ResponseEntity<?> handleSendProposalOnInvalidSubServiceException() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 messageSource.getMessage("errors.message.send_proposal_on_invalid_sub_service"));
+    }
+
+    @ExceptionHandler(SendProposalOnInvalidSubServiceException.class)
+    public ResponseEntity<?> handleImageSizeException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                messageSource.getMessage("errors.message.image_size_not_ok"));
     }
 }

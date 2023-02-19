@@ -76,11 +76,19 @@ public class CustomerController {
         return messageSource.getMessage("ok.message.successful_operation");
     }
 
-    @PostMapping("/done/{orderCode}")
+    @PutMapping("/done/{orderCode}")
     public String setDoneOrder(@PathVariable String orderCode) {
-        log.info("... start set done order with code : {} ...", orderCode);
+        log.info("... set done order with code : {} ...", orderCode);
         customerService.setDoneStatusForOrder(orderCode);
         log.info("... order status set done successfully ...");
+        return messageSource.getMessage("ok.message.successful_operation");
+    }
+
+    @PutMapping("/start/{orderCode}")
+    public String setStartOrder(@PathVariable String orderCode) {
+        log.info("... set start order with code : {} ...", orderCode);
+        customerService.setStartedStatusForOrder(orderCode);
+        log.info("... order status set start successfully ...");
         return messageSource.getMessage("ok.message.successful_operation");
     }
 

@@ -7,14 +7,9 @@ import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
 import ir.maktab.forthphase.data.dto.searchrequest.UserSearchRequest;
 import ir.maktab.forthphase.data.model.Services;
 import ir.maktab.forthphase.data.model.SubServices;
-import ir.maktab.forthphase.exceptions.DuplicateServiceNameException;
-import ir.maktab.forthphase.exceptions.DuplicateSubServiceNameException;
-import ir.maktab.forthphase.exceptions.ExpertStatusSetAgainException;
 import ir.maktab.forthphase.service.AdminService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -103,25 +98,5 @@ public class AdminController {
         ExpertSearchRequest expertSearchRequest =
                 new ExpertSearchRequest(firstName, lastName, email, status, subServiceName);
         return adminService.showListOfExpertsByApplyFilter(expertSearchRequest).toString();
-    }
-
-    @ExceptionHandler(DuplicateServiceNameException.class)
-    public ResponseEntity<?> handleDuplicateServiceNameException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                messageSource.getMessage("errors.message.duplicate_service_name"));
-    }
-
-    @ExceptionHandler(ExpertStatusSetAgainException.class)
-    public ResponseEntity<?> handleExpertStatusSetAgainException() {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(messageSource
-                        .getMessage("errors.message.expert_status_set_again"));
-    }
-
-    @ExceptionHandler(DuplicateSubServiceNameException.class)
-    public ResponseEntity<?> handleDuplicateSubServiceNameException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                messageSource.getMessage("errors.message.duplicate_sub_service_name"));
     }
 }
