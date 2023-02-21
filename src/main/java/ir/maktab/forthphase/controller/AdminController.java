@@ -3,8 +3,8 @@ package ir.maktab.forthphase.controller;
 import ir.maktab.forthphase.config.MessageSourceConfiguration;
 import ir.maktab.forthphase.data.dto.ServiceDto;
 import ir.maktab.forthphase.data.dto.SubServicesDto;
+import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
 import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
-import ir.maktab.forthphase.data.dto.searchrequest.UserSearchRequest;
 import ir.maktab.forthphase.data.model.Services;
 import ir.maktab.forthphase.data.model.SubServices;
 import ir.maktab.forthphase.service.AdminService;
@@ -77,26 +77,17 @@ public class AdminController {
     }
 
     @GetMapping("/all_new_experts")
-    public String showListOfNewExperts() {
+    public @ResponseBody String showListOfNewExperts() {
         return adminService.showListOfNewExperts().toString();
     }
 
     @GetMapping("/search_customer")
-    public String getCustomersByFilter(@RequestParam String firstName,
-                                       @RequestParam String lastName,
-                                       @RequestParam String email) {
-        UserSearchRequest userSearchRequest = new UserSearchRequest(firstName, lastName, email);
-        return adminService.showListOfCustomersByApplyFilter(userSearchRequest).toString();
+    public String getCustomersByFilter(@ModelAttribute CustomerSearchRequest request) {
+        return adminService.showListOfCustomersByApplyFilter(request).toString();
     }
 
     @GetMapping("/search_expert")
-    public String getExpertsByFilter(@RequestParam String firstName,
-                                     @RequestParam String lastName,
-                                     @RequestParam String email,
-                                     @RequestParam String status,
-                                     @RequestParam String subServiceName) {
-        ExpertSearchRequest expertSearchRequest =
-                new ExpertSearchRequest(firstName, lastName, email, status, subServiceName);
-        return adminService.showListOfExpertsByApplyFilter(expertSearchRequest).toString();
+    public String getExpertsByFilter(@ModelAttribute ExpertSearchRequest request) {
+        return adminService.showListOfExpertsByApplyFilter(request).toString();
     }
 }

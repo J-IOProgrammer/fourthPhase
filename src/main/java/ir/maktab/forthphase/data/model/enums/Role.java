@@ -1,4 +1,4 @@
-package ir.maktab.forthphase.data.enumeration;
+package ir.maktab.forthphase.data.model.enums;
 
 public enum Role {
     ROLE_CUSTOMER,

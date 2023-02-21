@@ -1,15 +1,13 @@
 package ir.maktab.forthphase.service;
 
-import ir.maktab.forthphase.data.dto.AdminLoginDto;
+import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
 import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
-import ir.maktab.forthphase.data.dto.searchrequest.UserSearchRequest;
-import ir.maktab.forthphase.data.model.*;
-import ir.maktab.forthphase.data.repository.AdminRepository;
-import ir.maktab.forthphase.exceptions.InvalidPasswordException;
-import ir.maktab.forthphase.exceptions.NoSuchUserFound;
+import ir.maktab.forthphase.data.model.Customer;
+import ir.maktab.forthphase.data.model.Expert;
+import ir.maktab.forthphase.data.model.Services;
+import ir.maktab.forthphase.data.model.SubServices;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,20 +19,10 @@ import static ir.maktab.forthphase.data.model.enums.ExpertStatus.ACCEPTED;
 @Transactional
 public class AdminService {
 
-    private final ModelMapper modelMapper;
     private final ExpertService expertService;
     private final ServicesService servicesService;
     private final SubServicesService subServicesService;
-    private final AdminRepository adminRepository;
     private final CustomerService customerService;
-
-    public AdminLoginDto login(String username, String password) {
-        Admin byUsername = adminRepository.findByUsername(username).orElseThrow(
-                NoSuchUserFound::new);
-        if (!byUsername.getPassword().equals(password))
-            throw new InvalidPasswordException();
-        return modelMapper.map(byUsername, AdminLoginDto.class);
-    }
 
     public void addNewService(Services service) {
         servicesService.addNewService(service);
@@ -76,7 +64,7 @@ public class AdminService {
         return expertService.applyFilter(request);
     }
 
-    public List<Customer> showListOfCustomersByApplyFilter(UserSearchRequest request) {
+    public List<Customer> showListOfCustomersByApplyFilter(CustomerSearchRequest request) {
         return customerService.applyFilter(request);
     }
 }

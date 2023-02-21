@@ -3,11 +3,13 @@ package ir.maktab.forthphase.controller;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import ir.maktab.forthphase.config.MessageSourceConfiguration;
 import ir.maktab.forthphase.exceptions.*;
+import jakarta.validation.UnexpectedTypeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -102,6 +104,14 @@ public class CentralExceptionHandler {
                         .getMessage("errors.message.de_active_account_exception"));
     }
 
+    @ExceptionHandler(UnexpectedTypeException.class)
+    private ResponseEntity<?> handleUnexpectedTypeException() {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(messageSource
+                        .getMessage("errors.message.unexpected_type_exception"));
+    }
+
     @ExceptionHandler(MismatchedInputException.class)
     ResponseEntity<?> handleException(MismatchedInputException exception) {
         return ResponseEntity
@@ -172,17 +182,11 @@ public class CentralExceptionHandler {
                 .body(exception.getMessage());
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    private ResponseEntity<?> handleRuntimeException(RuntimeException exception) {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    private ResponseEntity<?> handleInvalidPathException() {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(exception.getMessage());
-    }
-
-    @ExceptionHandler(Exception.class)
-    private ResponseEntity<?> handleException(Exception exception) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(exception.getMessage());
+                .body(messageSource
+                        .getMessage("errors.message.unexpected_type_exception"));
     }
 }

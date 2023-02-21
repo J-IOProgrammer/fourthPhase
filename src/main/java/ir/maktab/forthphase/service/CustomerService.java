@@ -1,8 +1,10 @@
 package ir.maktab.forthphase.service;
 
 import ir.maktab.forthphase.data.dto.CustomerLoginDto;
-import ir.maktab.forthphase.data.dto.searchrequest.UserSearchRequest;
+import ir.maktab.forthphase.data.dto.OpinionDto;
+import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
 import ir.maktab.forthphase.data.model.*;
+import ir.maktab.forthphase.data.model.enums.Role;
 import ir.maktab.forthphase.data.repository.CustomerRepository;
 import ir.maktab.forthphase.exceptions.*;
 import ir.maktab.forthphase.util.OrderUtil;
@@ -13,6 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,18 +32,17 @@ public class CustomerService {
     private final OrderService orderService;
     private final ExpertService expertService;
     private final ProposalService proposalService;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
     public void register(Customer customer) {
-        if (EmailValidation.isValidateEmail(customer.getEmail()))
-            throw new InvalidEmailException();
-        if (PasswordValidation.isValidatePassword(customer.getPassword()))
-            throw new InvalidPasswordException();
         if (NationalCodeValidation.isValidNationalCode(customer.getNationalCode()))
             throw new InvalidNationalCodeException();
         Optional<Customer> byEmail = customerRepository.findByEmail(customer.getEmail());
         if (byEmail.isPresent())
             throw new DuplicateEmailException();
+        customer.setRole(Role.ROLE_CUSTOMER);
+        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         customerRepository.save(customer);
     }
 
@@ -150,18 +152,28 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
-    public void addOpinionForOrder(Opinion opinion, String orderCode) {
+    public void addOpinionForOrder(OpinionDto opinionDto, String orderCode) {
         Order orderByCode = orderService.findOrderByCode(orderCode);
         if (Objects.nonNull(orderByCode.getOpinion()))
             throw new DuplicateOpinionAddingException();
+        Opinion opinion = new Opinion(Double.parseDouble(opinionDto.getRate()),
+                opinionDto.getOpinionText());
         orderByCode.setOpinion(opinion);
         Expert expert = expertService.addOpinionOnAcceptedOrder(orderByCode.getAcceptedExpertEmail());
         opinion.setExpert(expert);
         orderService.saveOrder(orderByCode);
     }
 
-    public List<Customer> applyFilter(UserSearchRequest request) {
-        Specification<Customer> customerSpecification = CustomerRepository.searchFilter(request);
-        return customerRepository.findAll(customerSpecification);
+    public List<Customer> applyFilter(CustomerSearchRequest request) {
+        Specification<Customer> searchFilter = CustomerRepository.searchFilter(request);
+        if (request.getLastName() == null && request.getFirstName() == null
+                && request.getEmail() == null && request.getNationalCode() == null)
+            return customerRepository.findAll();
+        return customerRepository.findAll(searchFilter);
+    }
+
+    public double getCredit(String customerEmail) {
+        Customer customer = customerRepository.findByEmail(customerEmail).orElseThrow(NoSuchUserFound::new);
+        return customer.getCredit();
     }
 }

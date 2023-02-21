@@ -26,6 +26,11 @@ public class Opinion extends BaseEntity {
     @Temporal(TemporalType.DATE)
     private Date recordDate;
 
+    public Opinion(double rate, String opinionText) {
+        this.rate = rate;
+        this.opinionText = opinionText;
+    }
+
     @Override
     public String toString() {
         return "Opinion{" +

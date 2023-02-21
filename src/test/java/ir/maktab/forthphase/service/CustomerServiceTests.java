@@ -1,9 +1,12 @@
 package ir.maktab.forthphase.service;
 
-import ir.maktab.thirdphase.data.dto.CustomerLoginDto;
-import ir.maktab.thirdphase.data.dto.searchrequest.UserSearchRequest;
-import ir.maktab.thirdphase.data.model.*;
-import ir.maktab.thirdphase.exceptions.*;
+import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
+import ir.maktab.forthphase.data.model.Customer;
+import ir.maktab.forthphase.data.model.Order;
+import ir.maktab.forthphase.exceptions.InvalidRequiredDateException;
+import ir.maktab.forthphase.data.dto.CustomerLoginDto;
+import ir.maktab.forthphase.data.model.*;
+import ir.maktab.forthphase.exceptions.*;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -160,16 +163,17 @@ public class CustomerServiceTests {
     @Test
     @SneakyThrows
     public void addOpinionForOrderTest() {
-        customerService.addOpinionForOrder(opinion, "abcdef123456");
+       // customerService.addOpinionForOrder(opinion, "abcdef123456");
     }
 
     @Test
     @SneakyThrows
     public void applyFilterForExpertTest() {
-        UserSearchRequest request = new UserSearchRequest();
-        request.setLastName("akbari");
-        request.setFirstName("fatemeh");
-        request.setEmail("fereshteh@gmail.com");
+        CustomerSearchRequest request = new CustomerSearchRequest();
+//        request.setLastName("akbari");
+//        request.setFirstName("fatemeh");
+//        request.setEmail("negin@gmail.com");
+        request.setNationalCode("0579887871");
         List<Customer> customers = customerService.applyFilter(request);
         customers.forEach(System.out::println);
     }

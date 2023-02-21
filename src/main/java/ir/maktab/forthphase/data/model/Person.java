@@ -1,9 +1,7 @@
 package ir.maktab.forthphase.data.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import ir.maktab.forthphase.data.model.enums.Role;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,7 +24,6 @@ public class Person extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(length = 8)
     private String password;
 
     @CreationTimestamp
@@ -37,4 +34,7 @@ public class Person extends BaseEntity {
 
     @Column(length = 10, unique = true)
     private String nationalCode;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }

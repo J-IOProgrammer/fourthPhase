@@ -9,17 +9,18 @@ import ir.maktab.forthphase.data.model.Order;
 import ir.maktab.forthphase.data.model.Proposal;
 import ir.maktab.forthphase.data.model.SubServices;
 import ir.maktab.forthphase.data.model.enums.ExpertStatus;
+import ir.maktab.forthphase.data.model.enums.Role;
 import ir.maktab.forthphase.data.repository.ExpertRepository;
 import ir.maktab.forthphase.exceptions.*;
 import ir.maktab.forthphase.util.ExpertUtil;
 import ir.maktab.forthphase.util.SubServicesUtil;
 import ir.maktab.forthphase.validation.EmailValidation;
 import ir.maktab.forthphase.validation.NationalCodeValidation;
-import ir.maktab.forthphase.validation.PasswordValidation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -49,13 +50,10 @@ public class ExpertService {
     private final OrderService orderService;
     private final ProposalService proposalService;
     private final OpinionService opinionService;
+    private final BCryptPasswordEncoder passwordEncoder;
     final MessageSourceConfiguration messageSource;
 
     public void register(Expert expert) {
-        if (EmailValidation.isValidateEmail(expert.getEmail()))
-            throw new InvalidEmailException();
-        if (!PasswordValidation.isValidatePassword(expert.getPassword()))
-            throw new InvalidPasswordException();
         if (NationalCodeValidation.isValidNationalCode(expert.getNationalCode()))
             throw new InvalidNationalCodeException();
         if (!ExpertUtil.checkImageFormat(
@@ -66,6 +64,8 @@ public class ExpertService {
             throw new DuplicateEmailException();
 
         expert.setExpertStatus(NEW);
+        expert.setPassword(passwordEncoder.encode(expert.getPassword()));
+        expert.setRole(Role.ROLE_EXPERT);
         expertRepository.save(expert);
     }
 
@@ -232,7 +232,7 @@ public class ExpertService {
         expertRepository.save(expertByEmail);
     }
 
-    public Expert PrepareNewObject(ExpertSaveRequestDto requestDto){
+    public Expert PrepareNewObject(ExpertSaveRequestDto requestDto) {
         if (!ExpertUtil.checkImageSize(requestDto.getImage()))
             throw new ImageSizeException();
         BufferedImage image;

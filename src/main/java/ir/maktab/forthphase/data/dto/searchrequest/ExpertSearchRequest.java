@@ -9,14 +9,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExpertSearchRequest extends UserSearchRequest {
+public class ExpertSearchRequest {
 
+    private String firstName;
+    private String lastName;
+    private String email;
     private String status;
     private String subServiceName;
-
-    public ExpertSearchRequest(String firstName, String lastName, String email, String status, String subServiceName) {
-        super(firstName, lastName, email);
-        this.status = status;
-        this.subServiceName = subServiceName;
-    }
+    private boolean isActive;
+    private String nationalCode;
 }

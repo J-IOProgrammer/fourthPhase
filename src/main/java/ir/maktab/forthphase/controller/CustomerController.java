@@ -6,8 +6,8 @@ import ir.maktab.forthphase.data.dto.CustomerOrderDto;
 import ir.maktab.forthphase.data.dto.OpinionDto;
 import ir.maktab.forthphase.data.dto.PayingInformation;
 import ir.maktab.forthphase.data.model.Customer;
-import ir.maktab.forthphase.data.model.Opinion;
 import ir.maktab.forthphase.data.model.Order;
+import ir.maktab.forthphase.exceptions.DuplicateOpinionAddingException;
 import ir.maktab.forthphase.exceptions.NoSuchProposalFoundException;
 import ir.maktab.forthphase.exceptions.NotEnoughMoneyException;
 import ir.maktab.forthphase.service.CustomerService;
@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +39,7 @@ public class CustomerController {
     }
 
     @PostMapping("/new")
-    public String addNewCustomer(@RequestBody CustomerLoginDto customerLoginDto) {
+    public String addNewCustomer(@Valid @RequestBody CustomerLoginDto customerLoginDto) {
         log.info("... adding new customer with info: '{}' ...", customerLoginDto);
         Customer customer = modelMapper.map(customerLoginDto, Customer.class);
         customerService.register(customer);
@@ -106,10 +108,9 @@ public class CustomerController {
     }
 
     @PostMapping("/add_opinion")
-    public void addOpinionForOrder(@RequestBody OpinionDto opinionDto,
+    public void addOpinionForOrder(@Valid @RequestBody OpinionDto opinionDto,
                                    @RequestParam(name = "orderCode") String orderCode) {
-        Opinion opinion = modelMapper.map(opinionDto, Opinion.class);
-        customerService.addOpinionForOrder(opinion, orderCode);
+        customerService.addOpinionForOrder(opinionDto, orderCode);
         log.info("... successfully ...");
     }
 
@@ -126,6 +127,14 @@ public class CustomerController {
         return messageSource.getMessage("ok.message.successful_operation");
     }
 
+    @GetMapping("/show_credit")
+    public double showCredit() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Customer customer = (Customer) auth.getPrincipal();
+        log.info("... current user : {} ...", customer.toString());
+        return customerService.getCredit(customer.getEmail());
+    }
+
     @ExceptionHandler(NotEnoughMoneyException.class)
     public ResponseEntity<?> handleNotEnoughMoneyException() {
         return ResponseEntity
@@ -138,5 +147,11 @@ public class CustomerController {
     public ResponseEntity<?> handleNoSuchProposalFoundException() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 messageSource.getMessage("errors.message.no_such_proposal_found"));
+    }
+
+    @ExceptionHandler(DuplicateOpinionAddingException.class)
+    public ResponseEntity<?> handleDuplicateOpinionAddingException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                messageSource.getMessage("errors.message.duplicate_opinion_adding"));
     }
 }

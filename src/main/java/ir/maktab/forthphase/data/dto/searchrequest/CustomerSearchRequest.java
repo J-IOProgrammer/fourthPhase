@@ -9,8 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSearchRequest {
+public class CustomerSearchRequest {
+
     private String firstName;
     private String lastName;
     private String email;
+    private String nationalCode;
 }

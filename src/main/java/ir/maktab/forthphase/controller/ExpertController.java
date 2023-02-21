@@ -8,13 +8,16 @@ import ir.maktab.forthphase.data.model.Proposal;
 import ir.maktab.forthphase.exceptions.InvalidRequestForDoNotExistSubServiceException;
 import ir.maktab.forthphase.exceptions.SendProposalOnInvalidSubServiceException;
 import ir.maktab.forthphase.service.ExpertService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Validated
 @Slf4j
 @RequestMapping("/expert")
 public class ExpertController {
@@ -32,7 +35,7 @@ public class ExpertController {
     }
 
     @PostMapping("/new")
-    public String addNewExpert(@RequestBody ExpertSaveRequestDto saveRequestDto) {
+    public String addNewExpert(@Valid @RequestBody ExpertSaveRequestDto saveRequestDto) {
         log.info("... adding new customer with info: '{}' ...", saveRequestDto);
         Expert expert = expertService.PrepareNewObject(saveRequestDto);
         expertService.register(expert);

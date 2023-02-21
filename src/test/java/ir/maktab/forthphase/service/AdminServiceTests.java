@@ -1,15 +1,17 @@
 package ir.maktab.forthphase.service;
 
-import ir.maktab.thirdphase.data.dto.AdminLoginDto;
-import ir.maktab.thirdphase.data.dto.searchrequest.ExpertSearchRequest;
-import ir.maktab.thirdphase.data.dto.searchrequest.UserSearchRequest;
-import ir.maktab.thirdphase.data.model.Customer;
-import ir.maktab.thirdphase.data.model.Expert;
-import ir.maktab.thirdphase.data.model.Services;
-import ir.maktab.thirdphase.data.model.SubServices;
-import ir.maktab.thirdphase.data.model.enums.ExpertStatus;
-import ir.maktab.thirdphase.exceptions.*;
-import ir.maktab.thirdphase.util.ExpertUtil;
+import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
+import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
+import ir.maktab.forthphase.data.model.Customer;
+import ir.maktab.forthphase.data.model.Expert;
+import ir.maktab.forthphase.data.model.Services;
+import ir.maktab.forthphase.data.model.SubServices;
+import ir.maktab.forthphase.data.model.enums.ExpertStatus;
+import ir.maktab.forthphase.exceptions.DuplicateServiceNameException;
+import ir.maktab.forthphase.exceptions.DuplicateSubServiceNameException;
+import ir.maktab.forthphase.exceptions.NoSuchUserFound;
+import ir.maktab.forthphase.exceptions.SubServiceNameNotFoundException;
+import ir.maktab.forthphase.util.ExpertUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -85,25 +87,6 @@ public class AdminServiceTests {
         services = Services.builder()
                 .name("Home activity")
                 .subServices(subServicesSet).build();
-    }
-
-    @SneakyThrows
-    @Test
-    public void loginAdminTest() {
-        AdminLoginDto root = adminService.login("root", "1234");
-        assertNotNull(root);
-    }
-
-    @Test
-    public void loginAdminWithWrongUsernameTest() {
-        Assertions.assertThrows(NoSuchUserFound.class,
-                () -> adminService.login("rot", "1234"));
-    }
-
-    @Test
-    public void loginAdminWithWrongPasswordTest() {
-        Assertions.assertThrows(InvalidPasswordException.class,
-                () -> adminService.login("root", "123"));
     }
 
     @SneakyThrows
@@ -195,7 +178,7 @@ public class AdminServiceTests {
     @Test
     @SneakyThrows
     public void showCustomersByFilter() {
-        UserSearchRequest userSearchRequest = new UserSearchRequest();
+        CustomerSearchRequest userSearchRequest = new CustomerSearchRequest();
         userSearchRequest.setEmail("fatemeh@gmail.com");
         userSearchRequest.setFirstName("arezoo");
         List<Customer> customers = adminService.showListOfCustomersByApplyFilter(userSearchRequest);

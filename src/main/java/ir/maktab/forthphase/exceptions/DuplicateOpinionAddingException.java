@@ -1,7 +1,7 @@
 package ir.maktab.forthphase.exceptions;
 
-public class DuplicateOpinionAddingException extends RuntimeException{
-    public DuplicateOpinionAddingException(){
+public class DuplicateOpinionAddingException extends RuntimeException {
+    public DuplicateOpinionAddingException() {
         super();
     }
 }

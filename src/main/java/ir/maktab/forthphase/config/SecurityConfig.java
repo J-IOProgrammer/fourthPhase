@@ -1,12 +1,16 @@
 package ir.maktab.forthphase.config;
 
+import ir.maktab.forthphase.data.repository.AdminRepository;
 import ir.maktab.forthphase.data.repository.CustomerRepository;
 import ir.maktab.forthphase.data.repository.ExpertRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -15,15 +19,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final ExpertRepository expertRepository;
+
+    private final AdminRepository adminRepository;
     private final CustomerRepository customerRepository;
+    private final ExpertRepository expertRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public SecurityConfig(ExpertRepository expertRepository,
-                          CustomerRepository customerRepository,
-                          BCryptPasswordEncoder passwordEncoder) {
-        this.expertRepository = expertRepository;
+    public SecurityConfig(AdminRepository adminRepository, CustomerRepository customerRepository,
+                          ExpertRepository expertRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.adminRepository = adminRepository;
         this.customerRepository = customerRepository;
+        this.expertRepository = expertRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -32,44 +38,39 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/expert/register").permitAll()
-                .requestMatchers("/customer/register").permitAll()
-//                .requestMatchers("/expert/**").hasRole("EXPERT")
-//                .requestMatchers("/admin/**").hasRole("ADMIN")
-//                .requestMatchers("/customer/**").hasRole("CUSTOMER")
-
-//                .requestMatchers("/service/saveService").hasRole("ADMIN")
-//                .requestMatchers("/service/findAllService").hasAnyRole("CUSTOMER","ADMIN")
-//                .requestMatchers("/service/editService").hasAnyRole("ADMIN", "EXPERT")
-                .anyRequest().authenticated().and().httpBasic();
+                .requestMatchers("/customer/new", "/expert/new", "/admin/add_admin").permitAll()
+                .requestMatchers("*/expert/**").hasAnyRole("EXPERT", "ADMIN")
+                .requestMatchers("*/admin/**").hasRole("ADMIN")
+                .requestMatchers("*/customer/**").hasAnyRole("CUSTOMER", "ADMIN")
+                .anyRequest()
+                .authenticated()
+                .and()
+                .httpBasic();
         return http.build();
     }
-//
-//    @Autowired
-//    public void configureGlobal(AuthenticationManagerBuilder auth)
-//            throws Exception {
-//        auth.userDetailsService((username) -> userRepository
-//                        .findByUsername(username)
-//                        .orElseThrow(() -> new UsernameNotFoundException(String.format("This %s notFound!", username))))
-//                .passwordEncoder(passwordEncoder);
 
-//        .userDetailsService(username -> userRepository
-//                .findByUsername(username)
-//                .orElseThrow(() -> new UsernameNotFoundException(String
-//                        .format("this %s not found", username))))
-//                .passwordEncoder(passwordEncoder).and()
-//
-//                .userDetailsService(username -> adminRepository
-//                        .findByUsername(username)
-//                        .orElseThrow(() -> new UsernameNotFoundException(String
-//                                .format("this %s not found", username))))
-//                .passwordEncoder(passwordEncoder).and()
-//
-//                .userDetailsService(username -> expertRepository
-//                        .findByUsername(username)
-//                        .orElseThrow(() -> new UsernameNotFoundException(String
-//                                .format("this %s not found", username))))
-//                .passwordEncoder(passwordEncoder);
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth)
+            throws Exception {
+
+        auth.userDetailsService(username -> adminRepository
+                        .findByUsername(username)
+                        .orElseThrow(() -> new UsernameNotFoundException(String
+                                .format("this %s not found", username))))
+                .passwordEncoder(passwordEncoder).and()
+
+                .userDetailsService(username -> customerRepository
+                        .findByEmail(username)
+                        .orElseThrow(() -> new UsernameNotFoundException(String
+                                .format("this %s not found", username))))
+                .passwordEncoder(passwordEncoder).and()
+
+                .userDetailsService(username -> expertRepository
+                        .findByEmail(username)
+                        .orElseThrow(() -> new UsernameNotFoundException(String
+                                .format("this %s not found", username))))
+                .passwordEncoder(passwordEncoder);
     }
+}
 
 
