@@ -189,4 +189,12 @@ public class CentralExceptionHandler {
                 .body(messageSource
                         .getMessage("errors.message.unexpected_type_exception"));
     }
+
+    @ExceptionHandler(InvalidOrderStatusException.class)
+    private ResponseEntity<?> handleInvalidOrderStatusException() {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(messageSource
+                        .getMessage("errors.message.invalid_order_status"));
+    }
 }

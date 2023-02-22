@@ -32,7 +32,8 @@ public class CustomerController {
     private final ModelMapper modelMapper;
     final MessageSourceConfiguration messageSource;
 
-    public CustomerController(CustomerService customerService, ModelMapper modelMapper, MessageSourceConfiguration messageSource) {
+    public CustomerController(CustomerService customerService, ModelMapper modelMapper,
+                              MessageSourceConfiguration messageSource) {
         this.customerService = customerService;
         this.modelMapper = modelMapper;
         this.messageSource = messageSource;
@@ -48,14 +49,15 @@ public class CustomerController {
     }
 
     @PostMapping("/add_order")
-    public String addNewOrder(@RequestParam(name = "email") String customerEmail,
-                              @RequestParam(name = "requiredDate") String requiredDate,
+    public String addNewOrder(@RequestParam(name = "requiredDate") String requiredDate,
                               @RequestBody CustomerOrderDto orderDto) {
-        log.info("... adding new order with info: '{}' by user: {} ...", orderDto, customerEmail);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Customer customer = (Customer) auth.getPrincipal();
+        log.info("... adding new order with info: '{}' by user: {} ...", orderDto, customer.getEmail());
         orderDto.setRequiredDate(OrderUtil.convertStringToDate(requiredDate));
         Order order = modelMapper.map(orderDto, Order.class);
         order.setOrderCode(OrderUtil.codeGenerator());
-        customerService.addNewOrder(customerEmail, order);
+        customerService.addNewOrder(customer.getEmail(), order);
         log.info("... successfully add order ...");
         return messageSource.getMessage("ok.message.successful_operation");
     }
@@ -102,9 +104,11 @@ public class CustomerController {
         return messageSource.getMessage("ok.message.successful_operation");
     }
 
-    @GetMapping("/all_orders/{customerEmail}")
-    public String showAllOrders(@PathVariable String customerEmail) {
-        return customerService.showAllOrders(customerEmail).toString();
+    @GetMapping("/all_orders")
+    public String showAllOrders() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Customer customer = (Customer) auth.getPrincipal();
+        return customerService.showAllOrders(customer.getEmail()).toString();
     }
 
     @PostMapping("/add_opinion")

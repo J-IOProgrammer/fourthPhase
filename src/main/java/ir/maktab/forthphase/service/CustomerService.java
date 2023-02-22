@@ -89,6 +89,8 @@ public class CustomerService {
             throw new NoSuchUserFound();
 
         Order orderByCode = orderService.findOrderByCode(orderCode);
+        if (!orderByCode.getOrderStatus().equals(WAIT_FOR_CHOOSING_EXPORT))
+            throw new InvalidOrderStatusException();
         orderByCode.setAcceptedExpertEmail(expertEmail);
         orderByCode.setCost(byExpertEmail.getCost());
         orderByCode.setOrderStatus(WAIT_FOR_COMING_EXPORT);
@@ -101,6 +103,8 @@ public class CustomerService {
                 findProposalByOrderCodeAndExpertEmail(orderCode, orderByCode.getAcceptedExpertEmail());
         if (proposal.getTimeOfDoing().compareTo(new Date()) < 0)
             throw new InvalidRequiredDateException();
+        if (!orderByCode.getOrderStatus().equals(WAIT_FOR_COMING_EXPORT))
+            throw new InvalidOrderStatusException();
         orderByCode.setOrderStatus(START);
         proposal.setTimeOfStart(new Date());
         proposalService.saveEditedProposal(proposal);
@@ -111,8 +115,10 @@ public class CustomerService {
         Order orderByCode = orderService.findOrderByCode(orderCode);
         Proposal proposal = proposalService.
                 findProposalByOrderCodeAndExpertEmail(orderCode, orderByCode.getAcceptedExpertEmail());
-        orderByCode.setOrderStatus(DONE);
+        if (!orderByCode.getOrderStatus().equals(START))
+            throw new InvalidOrderStatusException();
 
+        orderByCode.setOrderStatus(DONE);
         orderService.saveOrder(orderByCode);
 
         expertService.setExpertRating(orderByCode.getAcceptedExpertEmail(),
