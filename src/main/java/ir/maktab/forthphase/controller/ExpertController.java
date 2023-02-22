@@ -1,13 +1,17 @@
 package ir.maktab.forthphase.controller;
 
 import ir.maktab.forthphase.config.MessageSourceConfiguration;
+import ir.maktab.forthphase.config.SecurityUtil;
 import ir.maktab.forthphase.data.dto.ExpertSaveRequestDto;
 import ir.maktab.forthphase.data.dto.ProposalDto;
 import ir.maktab.forthphase.data.model.Expert;
 import ir.maktab.forthphase.data.model.Proposal;
 import ir.maktab.forthphase.exceptions.InvalidRequestForDoNotExistSubServiceException;
+import ir.maktab.forthphase.exceptions.InvalidTokenException;
+import ir.maktab.forthphase.exceptions.ReVerifyException;
 import ir.maktab.forthphase.exceptions.SendProposalOnInvalidSubServiceException;
 import ir.maktab.forthphase.service.ExpertService;
+import ir.maktab.forthphase.util.TokenProducer;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -43,17 +47,17 @@ public class ExpertController {
     }
 
     @GetMapping("/orders_by_sub_service")
-    public String showOrdersRelatedToSubService(@RequestParam(name = "email") String expertEmail,
-                                                @RequestParam(name = "subServiceName") String subServiceName) {
-        return expertService.showOrdersRelatedToSubService(expertEmail, subServiceName).toString();
+    public String showOrdersRelatedToSubService(@RequestParam(name = "subServiceName") String subServiceName) {
+        Expert expert = (Expert) SecurityUtil.getCurrentUser();
+        return expertService.showOrdersRelatedToSubService(expert.getEmail(), subServiceName).toString();
     }
 
     @PostMapping("/add_new_proposal")
-    public void addNewProposalForOrder(@RequestParam("email") String expertEmail,
-                                       @RequestBody ProposalDto proposalDto,
+    public void addNewProposalForOrder(@RequestBody ProposalDto proposalDto,
                                        @RequestParam("orderCode") String orderCode) {
+        Expert expert = (Expert) SecurityUtil.getCurrentUser();
         Proposal proposal = modelMapper.map(proposalDto, Proposal.class);
-        expertService.addNewProposalForOrder(expertEmail, proposal, orderCode);
+        expertService.addNewProposalForOrder(expert.getEmail(), proposal, orderCode);
     }
 
     @GetMapping("/related_orders/{name}")
@@ -62,27 +66,53 @@ public class ExpertController {
     }
 
     @PostMapping("/change_password")
-    public void changePassword(@RequestParam String expertEmail,
-                               @RequestParam String password,
+    public void changePassword(@RequestParam String password,
                                @RequestParam String confirmedPassword) {
-        log.info("... change password request by : '{}' ...", expertEmail);
-        expertService.changePassword(expertEmail, password, confirmedPassword);
+        Expert expert = (Expert) SecurityUtil.getCurrentUser();
+        log.info("... change password request by : '{}' ...", expert.getEmail());
+        expertService.changePassword(expert.getEmail(), password, confirmedPassword);
     }
 
-    @GetMapping("/opinions/{email}")
-    public String showExpertOpinions(@PathVariable("email") String expertEmail) {
-        return expertService.getExpertOpinions(expertEmail).toString();
+    @GetMapping("/opinions")
+    public String showExpertOpinions() {
+        Expert expert = (Expert) SecurityUtil.getCurrentUser();
+        return expertService.getExpertOpinions(expert.getEmail()).toString();
     }
 
-    @PostMapping("/save_image/{email}")
-    public void saveExpertImage(@PathVariable("email") String expertEmail) {
-        expertService.saveExpertImageToFile(expertEmail);
+    @PostMapping("/save_image")
+    public void saveExpertImage() {
+        Expert expert = (Expert) SecurityUtil.getCurrentUser();
+        expertService.saveExpertImageToFile(expert.getEmail());
+    }
+
+    @GetMapping("/my_rating")
+    public double showExpertRating() {
+        Expert expert = (Expert) SecurityUtil.getCurrentUser();
+        return expertService.getExpertRating(expert.getEmail());
+    }
+
+    @GetMapping("/verify/{expertEmail}")
+    public String verifyEmail(@PathVariable String expertEmail) {
+        String verifyToken = TokenProducer.generateToken();
+        return "http://localhost:8080/verify/" + verifyToken + "/" + expertEmail;
+    }
+
+    @GetMapping("/verify/{token}/{expertEmail}")
+    private void verifyEmailByToken(@PathVariable String token, @PathVariable String expertEmail) {
+        token = token + expertEmail;
+        expertService.verifyEmail(expertEmail,token);
     }
 
     @ExceptionHandler(InvalidRequestForDoNotExistSubServiceException.class)
     public ResponseEntity<?> handleInvalidRequestForDoNotExistSubServiceException() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 messageSource.getMessage("errors.message.invalid_request_for_do_not_exist_sub_service"));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<?> handleInvalidTokenException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                messageSource.getMessage("errors.message.invalid_token"));
     }
 
     @ExceptionHandler(SendProposalOnInvalidSubServiceException.class)
@@ -95,5 +125,11 @@ public class ExpertController {
     public ResponseEntity<?> handleImageSizeException() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 messageSource.getMessage("errors.message.image_size_not_ok"));
+    }
+
+    @ExceptionHandler(ReVerifyException.class)
+    public ResponseEntity<?> handleReVerifyException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                messageSource.getMessage("errors.message.re_verify_email"));
     }
 }

@@ -1,6 +1,7 @@
 package ir.maktab.forthphase.controller;
 
 import ir.maktab.forthphase.config.MessageSourceConfiguration;
+import ir.maktab.forthphase.config.SecurityUtil;
 import ir.maktab.forthphase.data.dto.CustomerLoginDto;
 import ir.maktab.forthphase.data.dto.CustomerOrderDto;
 import ir.maktab.forthphase.data.dto.OpinionDto;
@@ -17,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,8 +50,7 @@ public class CustomerController {
     @PostMapping("/add_order")
     public String addNewOrder(@RequestParam(name = "requiredDate") String requiredDate,
                               @RequestBody CustomerOrderDto orderDto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Customer customer = (Customer) auth.getPrincipal();
+        Customer customer = (Customer) SecurityUtil.getCurrentUser();
         log.info("... adding new order with info: '{}' by user: {} ...", orderDto, customer.getEmail());
         orderDto.setRequiredDate(OrderUtil.convertStringToDate(requiredDate));
         Order order = modelMapper.map(orderDto, Order.class);
@@ -106,8 +104,7 @@ public class CustomerController {
 
     @GetMapping("/all_orders")
     public String showAllOrders() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Customer customer = (Customer) auth.getPrincipal();
+        Customer customer = (Customer) SecurityUtil.getCurrentUser();
         return customerService.showAllOrders(customer.getEmail()).toString();
     }
 
@@ -133,8 +130,7 @@ public class CustomerController {
 
     @GetMapping("/show_credit")
     public double showCredit() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Customer customer = (Customer) auth.getPrincipal();
+        Customer customer = (Customer) SecurityUtil.getCurrentUser();
         log.info("... current user : {} ...", customer.toString());
         return customerService.getCredit(customer.getEmail());
     }

@@ -2,15 +2,10 @@ package ir.maktab.forthphase.service;
 
 import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
 import ir.maktab.forthphase.data.model.Expert;
-import ir.maktab.forthphase.data.dto.ExpertLoginDto;
-import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
-import ir.maktab.forthphase.data.model.Expert;
 import ir.maktab.forthphase.data.model.Order;
 import ir.maktab.forthphase.data.model.Proposal;
 import ir.maktab.forthphase.data.model.enums.ExpertStatus;
 import ir.maktab.forthphase.exceptions.DuplicateEmailException;
-import ir.maktab.forthphase.exceptions.InvalidPasswordException;
-import ir.maktab.forthphase.exceptions.NoSuchUserFound;
 import ir.maktab.forthphase.util.ExpertUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -49,7 +44,7 @@ public class ExpertServiceTests {
         byte[] jpgs = ExpertUtil.toByteArray(image, "jpg");
 
         duplicateExpert = Expert.builder()
-                .expertStatus(ExpertStatus.NEW)
+                .expertStatus(ExpertStatus.WAIT_FOR_VERIFY_EMAIL)
                 .aboutMe("hello")
                 .rating(0)
                 .image(jpgs)
@@ -67,7 +62,7 @@ public class ExpertServiceTests {
                 .build();
 
         expert = Expert.builder()
-                .expertStatus(ExpertStatus.NEW)
+                .expertStatus(ExpertStatus.WAIT_FOR_VERIFY_EMAIL)
                 .aboutMe("hello")
                 .rating(0)
                 .image(jpgs)
@@ -77,7 +72,7 @@ public class ExpertServiceTests {
         expert.setNationalCode("0888888899");
 
         unavailableExpert = Expert.builder()
-                .expertStatus(ExpertStatus.NEW)
+                .expertStatus(ExpertStatus.WAIT_FOR_VERIFY_EMAIL)
                 .aboutMe("hello")
                 .rating(0)
                 .image(jpgs)
@@ -97,25 +92,6 @@ public class ExpertServiceTests {
     public void addDuplicateExpertEmailTest() {
         Assertions.assertThrows(DuplicateEmailException.class,
                 () -> expertService.register(duplicateExpert));
-    }
-
-    @Test
-    public void findUnavailableExpertEmail() {
-        Assertions.assertThrows(NoSuchUserFound.class,
-                () -> expertService.login(unavailableExpert.getEmail(), unavailableExpert.getPassword()));
-    }
-
-    @Test
-    @SneakyThrows
-    public void loginWithValidInputsTest() {
-        ExpertLoginDto loginDto = expertService.login("sara@gmail.com", "Sara1234");
-        assertNotNull(loginDto);
-    }
-
-    @Test
-    public void findExpertWithInvalidPassword() {
-        Assertions.assertThrows(InvalidPasswordException.class,
-                () -> expertService.login(duplicateExpert.getEmail(), "expe123"));
     }
 
     @Test

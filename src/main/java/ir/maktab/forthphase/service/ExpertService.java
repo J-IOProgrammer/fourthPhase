@@ -1,7 +1,6 @@
 package ir.maktab.forthphase.service;
 
 import ir.maktab.forthphase.config.MessageSourceConfiguration;
-import ir.maktab.forthphase.data.dto.ExpertLoginDto;
 import ir.maktab.forthphase.data.dto.ExpertSaveRequestDto;
 import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
 import ir.maktab.forthphase.data.model.Expert;
@@ -14,7 +13,6 @@ import ir.maktab.forthphase.data.repository.ExpertRepository;
 import ir.maktab.forthphase.exceptions.*;
 import ir.maktab.forthphase.util.ExpertUtil;
 import ir.maktab.forthphase.util.SubServicesUtil;
-import ir.maktab.forthphase.validation.EmailValidation;
 import ir.maktab.forthphase.validation.NationalCodeValidation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static ir.maktab.forthphase.data.model.enums.ExpertStatus.NEW;
+import static ir.maktab.forthphase.data.model.enums.ExpertStatus.WAIT_FOR_ACCEPT;
+import static ir.maktab.forthphase.data.model.enums.ExpertStatus.WAIT_FOR_VERIFY_EMAIL;
 import static ir.maktab.forthphase.data.model.enums.OrderStatus.WAIT_FOR_CHOOSING_EXPORT;
 import static ir.maktab.forthphase.data.model.enums.OrderStatus.WAIT_FOR_EXPORT_PROPOSAL;
 import static ir.maktab.forthphase.util.ProposalUtil.isOkPriceOfProposal;
@@ -63,30 +62,15 @@ public class ExpertService {
         if (byEmail.isPresent())
             throw new DuplicateEmailException();
 
-        expert.setExpertStatus(NEW);
+        expert.setExpertStatus(WAIT_FOR_VERIFY_EMAIL);
         expert.setPassword(passwordEncoder.encode(expert.getPassword()));
         expert.setRole(Role.ROLE_EXPERT);
         expertRepository.save(expert);
     }
 
-    public ExpertLoginDto login(String email, String password) {
-        if (EmailValidation.isValidateEmail(email))
-            throw new InvalidEmailException();
-        Optional<Expert> expert = expertRepository.findByEmail(email);
-        if (expert.isEmpty())
-            throw new NoSuchUserFound();
-        if (!expert.get().getPassword().equals(password))
-            throw new InvalidPasswordException();
-        if (!expert.get().isActive() || expert.get().getExpertStatus().equals(NEW))
-            throw new DeActiveAccountException();
-        else
-            return modelMapper.map(expert, ExpertLoginDto.class);
-    }
-
     public void deleteExpertFromSubService(String expertEmail, String subServiceName) {
         SubServices subServices;
-        Expert expert = expertRepository.findByEmail(expertEmail).
-                orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
         subServices = subServicesService.findSubServiceByName(subServiceName);
         expert.getSubServices().remove(subServices);
         subServices.getExpertList().remove(expert);
@@ -96,11 +80,13 @@ public class ExpertService {
 
     public void addExpertToSubService(String expertEmail, String subServiceName) {
         SubServices subServices;
-        Expert expert = expertRepository.findByEmail(expertEmail).
-                orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
         subServices = subServicesService.findSubServiceByName(subServiceName);
         if (subServicesUtil.isThereSubServiceName(expert.getSubServices(), subServiceName))
             throw new DuplicateSubServiceNameException();
+        if (expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL)
+                || expert.getExpertStatus().equals(WAIT_FOR_ACCEPT))
+            throw new DeActiveAccountException();
         expert.getSubServices().add(subServices);
         subServices.getExpertList().add(expert);
         subServicesService.editSubService(subServices);
@@ -108,8 +94,7 @@ public class ExpertService {
     }
 
     public void changeExpertStatus(String expertEmail, ExpertStatus newStatus) {
-        Expert expert = expertRepository.findByEmail(expertEmail).
-                orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
         if (expert.getExpertStatus().equals(newStatus))
             throw new ExpertStatusSetAgainException();
         expert.setExpertStatus(newStatus);
@@ -118,13 +103,19 @@ public class ExpertService {
     }
 
     public void saveExpertImageToFile(String expertEmail) {
-        Expert expert = expertRepository.findByEmail(expertEmail).orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
+        if (expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL)
+                || expert.getExpertStatus().equals(WAIT_FOR_ACCEPT))
+            throw new DeActiveAccountException();
         BufferedImage bufferedImage = ExpertUtil.toBufferedImage(expert.getImage());
         ExpertUtil.saveImage(bufferedImage);
     }
 
     public Set<Order> showOrdersRelatedToSubService(String expertEmail, String subServiceName) {
-        Expert expert = expertRepository.findByEmail(expertEmail).orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
+        if (expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL)
+                || expert.getExpertStatus().equals(WAIT_FOR_ACCEPT))
+            throw new DeActiveAccountException();
         SubServices subServiceByName = subServicesService.findSubServiceByName(subServiceName);
         if (expert.getSubServices().contains(subServiceByName))
             return orderService.findOrdersBySubServiceName(subServiceName);
@@ -133,7 +124,11 @@ public class ExpertService {
 
     public void addNewProposalForOrder(String expertEmail, Proposal proposal, String orderCode) {
 
-        Expert expert = expertRepository.findByEmail(expertEmail).orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
+
+        if (expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL)
+                || expert.getExpertStatus().equals(WAIT_FOR_ACCEPT))
+            throw new DeActiveAccountException();
 
         Order orderByCode = orderService.findOrderByCode(orderCode);
 
@@ -168,17 +163,23 @@ public class ExpertService {
     }
 
     public List<Expert> showListOfNewExperts() {
-        return expertRepository.findExpertsByExpertStatus(NEW);
+        List<Expert> experts = expertRepository.findExpertsByExpertStatus(WAIT_FOR_VERIFY_EMAIL);
+        experts.addAll(expertRepository.findExpertsByExpertStatus(WAIT_FOR_ACCEPT));
+        return experts;
+
     }
 
     public void getCostOfService(String expertEmail, double cost) {
-        Expert expert = expertRepository.findByEmail(expertEmail).orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
         expert.setCredit(expert.getCredit() + (cost * 0.7));
         expertRepository.save(expert);
     }
 
     public Expert addOpinionOnAcceptedOrder(String expertEmail) {
-        Expert expert = expertRepository.findByEmail(expertEmail).orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
+        if (expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL)
+                || expert.getExpertStatus().equals(WAIT_FOR_ACCEPT))
+            throw new DeActiveAccountException();
         expert.setRating(opinionService.calcExpertRate(expertEmail));
         expertRepository.save(expert);
         return expert;
@@ -187,7 +188,10 @@ public class ExpertService {
     public void changePassword(String expertEmail, String newPassword, String confirmedPassword) {
         if (!newPassword.equals(confirmedPassword))
             throw new UnequalPasswordsException();
-        Expert expert = expertRepository.findByEmail(expertEmail).orElseThrow(NoSuchUserFound::new);
+        Expert expert = findExpertByEmail(expertEmail);
+        if (expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL)
+                || expert.getExpertStatus().equals(WAIT_FOR_ACCEPT))
+            throw new DeActiveAccountException();
         expert.setPassword(newPassword);
         expertRepository.save(expert);
     }
@@ -223,12 +227,12 @@ public class ExpertService {
     public void setExpertRating(String expertEmail, Date startTime, Date doneTime, String neededTime) {
         Expert expertByEmail = findExpertByEmail(expertEmail);
         int betweenTime = ExpertUtil.calculateDistanceBetweenTime(startTime, doneTime, neededTime);
-        double expertRate = expertByEmail.getRating() + betweenTime;
-        if (expertRate < 0)
-            expertByEmail.setActive(false);
-        if (expertRate > 5)
-            expertByEmail.setRating(5);
-        expertByEmail.setRating(expertRate);
+        if (betweenTime < 0) {
+            double expertRate = expertByEmail.getRating() + betweenTime;
+            if (expertRate < 0)
+                expertByEmail.setActive(false);
+            expertByEmail.setRating(expertRate);
+        }
         expertRepository.save(expertByEmail);
     }
 
@@ -246,6 +250,20 @@ public class ExpertService {
         Expert expert = modelMapper.map(requestDto, Expert.class);
         expert.setImage(jpgs);
         return expert;
+    }
+
+    public void verifyEmail(String expertEmail, String token) {
+        if (token.contains(expertEmail + expertEmail))
+            throw new InvalidTokenException();
+        Expert expert = findExpertByEmail(expertEmail);
+        if (!expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL))
+            throw new ReVerifyException();
+        changeExpertStatus(expertEmail, WAIT_FOR_ACCEPT);
+    }
+
+    public double getExpertRating(String expertEmail) {
+        Expert expert = findExpertByEmail(expertEmail);
+        return expert.getRating();
     }
 
     private Expert findMaxRating() {
