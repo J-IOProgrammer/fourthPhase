@@ -204,10 +204,11 @@ public class AdminServiceTests {
     @Test
     public void showOrderByFilter() {
         OrderSearchRequest request = new OrderSearchRequest();
-        request.setStatus(OrderStatus.DONE);
         request.setServiceName("fix home");
         request.setStatus(OrderStatus.PAID);
         request.setCustomerEmail("arezoo@gmail.com");
+        request.setStartDate("2023-02-16");
+        request.setEndDate("2023-02-20");
         List<Order> orders = adminService.showListOfOrdersByApplyFilter(request);
         System.out.println(orders.toString());
     }

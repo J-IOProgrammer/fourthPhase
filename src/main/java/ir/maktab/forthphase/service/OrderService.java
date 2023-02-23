@@ -4,12 +4,16 @@ import ir.maktab.forthphase.data.dto.searchrequest.OrderSearchRequest;
 import ir.maktab.forthphase.data.model.Order;
 import ir.maktab.forthphase.data.model.enums.OrderStatus;
 import ir.maktab.forthphase.data.repository.OrderRepository;
+import ir.maktab.forthphase.exceptions.InvalidTimeException;
 import ir.maktab.forthphase.exceptions.OrderCodeNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -38,23 +42,32 @@ public class OrderService {
     }
 
     public List<Order> applyFilter(OrderSearchRequest request) {
-        List<Order> all = orderRepository.findAll();
+        List<Order> all = orderRepository.findOrdersByCustomerEmail(request.getCustomerEmail());
+        List<Order> applyOrderStatus = new ArrayList<>();
+        List<Order> applySubServiceName = new ArrayList<>();
+        List<Order> applyServiceName = new ArrayList<>();
+        List<Order> applyTimeRange = new ArrayList<>();
         if (checkRequestFields(request))
             return all;
 
-        List<Order> applyOrderStatus = applyOrderStatus(request.getStatus(),
-                orderRepository.findAll());
-        List<Order> applySubServiceName = applySubServiceName(request.getSubServiceName(),
-                orderRepository.findAll());
-        List<Order> applyServiceName = applyServiceName(request.getServiceName(),
-                orderRepository.findAll());
-        List<Order> applyCustomerEmail = applyCustomerEmail(request.getCustomerEmail(),
-                orderRepository.findAll());
+        if (request.getStatus() != null)
+            applyOrderStatus = applyOrderStatus(request.getStatus(),
+                    orderRepository.findOrdersByCustomerEmail(request.getCustomerEmail()));
+        if (request.getSubServiceName() != null)
+            applySubServiceName = applySubServiceName(request.getSubServiceName(),
+                    orderRepository.findOrdersByCustomerEmail(request.getCustomerEmail()));
+        if (request.getServiceName() != null)
+            applyServiceName = applyServiceName(request.getServiceName(),
+                    orderRepository.findOrdersByCustomerEmail(request.getCustomerEmail()));
+        if (request.getEndDate() != null && request.getStartDate() != null)
+            applyTimeRange = applyTimeRange(request.getStartDate(), request.getEndDate(),
+                    orderRepository.findOrdersByCustomerEmail(request.getCustomerEmail()));
 
         applyServiceName.addAll(applySubServiceName);
         applyOrderStatus.addAll(applyServiceName);
-        applyCustomerEmail.addAll(applyOrderStatus);
-        return applyCustomerEmail;
+        applyTimeRange.addAll(applyOrderStatus);
+
+        return applyTimeRange;
     }
 
     public int applyCountDoneStatusOrders(String expertEmail) {
@@ -64,7 +77,7 @@ public class OrderService {
     private boolean checkRequestFields(OrderSearchRequest request) {
         return request.getServiceName() == null && request.getSubServiceName() == null
                 && request.getStatus() == null && request.getEndDate() == null
-                && request.getCustomerEmail() == null && request.getStartDate() == null;
+                && request.getStartDate() == null;
     }
 
     private List<Order> applyServiceName(String serviceName, List<Order> orders) {
@@ -91,10 +104,20 @@ public class OrderService {
         return orderList;
     }
 
-    private List<Order> applyCustomerEmail(String customerEmail, List<Order> orders) {
+    private List<Order> applyTimeRange(String startTime, String endTime, List<Order> orders) {
         List<Order> orderList = new ArrayList<>();
+        Date sTime;
+        Date eTime;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            sTime = format.parse(startTime);
+            eTime = format.parse(endTime);
+        } catch (ParseException e) {
+            throw new InvalidTimeException();
+        }
         for (Order order : orders)
-            if (order.getCustomer().getEmail().equals(customerEmail))
+            if (order.getWriteInDate().compareTo(sTime) > 0 || order.getWriteInDate().compareTo(sTime) == 0
+                    && order.getWriteInDate().compareTo(eTime) < 0 || order.getWriteInDate().compareTo(eTime) == 0)
                 orderList.add(order);
         return orderList;
     }

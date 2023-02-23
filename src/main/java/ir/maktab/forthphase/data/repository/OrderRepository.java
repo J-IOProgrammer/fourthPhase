@@ -20,4 +20,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query(value = "select count(id) from order_table where order_status='DONE' and accepted_expert_email= ?1",
             nativeQuery = true)
     int findCountDoneStatusOrdersByExpertEmail(String expertEmail);
+
+    List<Order> findOrdersByCustomerEmail(String customerEmail);
 }

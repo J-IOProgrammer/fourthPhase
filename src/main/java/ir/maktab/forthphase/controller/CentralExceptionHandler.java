@@ -197,4 +197,12 @@ public class CentralExceptionHandler {
                 .body(messageSource
                         .getMessage("errors.message.invalid_order_status"));
     }
+
+    @ExceptionHandler(InvalidTimeException.class)
+    private ResponseEntity<?> handleInvalidTimeException() {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(messageSource
+                        .getMessage("errors.message.invalid_time_format"));
+    }
 }
