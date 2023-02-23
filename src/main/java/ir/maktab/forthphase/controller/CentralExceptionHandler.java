@@ -205,4 +205,11 @@ public class CentralExceptionHandler {
                 .body(messageSource
                         .getMessage("errors.message.invalid_time_format"));
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    private ResponseEntity<?> handleIllegalStateException(IllegalStateException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
 }

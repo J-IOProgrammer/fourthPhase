@@ -98,8 +98,8 @@ public class AdminController {
         return adminService.showListOfOrdersByApplyFilter(request).toString();
     }
 
-    @GetMapping("/count_customer_orders/{customerEmail}")
-    public int countCustomerOrders(@PathVariable String customerEmail) {
+    @GetMapping("/count_customer_orders")
+    public int countCustomerOrders(@RequestBody String customerEmail) {
         return adminService.countCustomerOrders(customerEmail);
     }
 
