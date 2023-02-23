@@ -70,12 +70,12 @@ public class OrderService {
         return applyTimeRange;
     }
 
-    public int countCustomerOrders(String customerEmail) {
-        return orderRepository.findOrdersByCustomerEmail(customerEmail).size();
+    public List<Order> showCustomerOrders(String customerEmail) {
+        return orderRepository.findOrdersByCustomerEmail(customerEmail);
     }
 
-    public int countDoneOrdersByExpert(String expertEmail) {
-        return orderRepository.findOrdersByAcceptedExpertEmail(expertEmail).size();
+    public List<Order> showDoneOrdersByExpert(String expertEmail) {
+        return orderRepository.findOrdersByAcceptedExpertEmail(expertEmail);
     }
 
     private boolean checkRequestFields(OrderSearchRequest request) {

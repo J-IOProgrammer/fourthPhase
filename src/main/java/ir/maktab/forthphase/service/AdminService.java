@@ -72,10 +72,10 @@ public class AdminService {
     }
 
     public int countCustomerOrders(String customerEmail) {
-        return orderService.countCustomerOrders(customerEmail);
+        return orderService.showCustomerOrders(customerEmail).size();
     }
 
     public int countDoneOrdersByExpert(String expertEmail) {
-        return orderService.countDoneOrdersByExpert(expertEmail);
+        return orderService.showDoneOrdersByExpert(expertEmail).size();
     }
 }
