@@ -135,6 +135,12 @@ public class CustomerController {
         return customerService.getCredit(customer.getEmail());
     }
 
+    @GetMapping("/order_history}")
+    public String showOrderHistory(){
+        Customer customer = (Customer) SecurityUtil.getCurrentUser();
+        return customerService.showHistoryOfOrder(customer.getEmail()).toString();
+    }
+
     @ExceptionHandler(NotEnoughMoneyException.class)
     public ResponseEntity<?> handleNotEnoughMoneyException() {
         return ResponseEntity

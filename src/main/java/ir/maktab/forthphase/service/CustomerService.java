@@ -188,6 +188,10 @@ public class CustomerService {
         return customer.getCredit();
     }
 
+    public List<Order> showHistoryOfOrder(String customerEmail) {
+        return orderService.showCustomerOrders(customerEmail);
+    }
+
     private boolean checkRequestFields(CustomerSearchRequest request) {
         return request.getLastName() == null && request.getFirstName() == null
                 && request.getEmail() == null && request.getNationalCode() == null

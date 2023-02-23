@@ -92,6 +92,12 @@ public class ExpertController {
         return expertService.getExpertRating(expert.getEmail());
     }
 
+    @GetMapping("/order_history")
+    public String showOrderHistory() {
+        Expert expert = (Expert) SecurityUtil.getCurrentUser();
+        return expertService.showOrderHistory(expert.getEmail()).toString();
+    }
+
     @PostMapping("/verify/{expertEmail}")
     public String verifyEmail(@PathVariable String expertEmail) {
         verifyToken = TokenProducer.generateToken();

@@ -215,6 +215,10 @@ public class ExpertService {
         return all;
     }
 
+    public List<Order> showOrderHistory(String expertEmail) {
+        return orderService.showDoneOrdersByExpert(expertEmail);
+    }
+
     public void setExpertRating(String expertEmail, Date startTime, Date doneTime, String neededTime) {
         Expert expertByEmail = findExpertByEmail(expertEmail);
         int betweenTime = ExpertUtil.calculateDistanceBetweenTime(startTime, doneTime, neededTime);
