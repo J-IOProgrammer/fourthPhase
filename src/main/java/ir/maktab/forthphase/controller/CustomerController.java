@@ -136,7 +136,7 @@ public class CustomerController {
     }
 
     @GetMapping("/order_history")
-    public String showOrderHistory(){
+    public String showOrderHistory() {
         Customer customer = (Customer) SecurityUtil.getCurrentUser();
         return customerService.showHistoryOfOrder(customer.getEmail()).toString();
     }
