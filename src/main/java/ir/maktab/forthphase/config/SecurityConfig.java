@@ -38,8 +38,8 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("*/customer/new", "*/expert/new",
-                        "*/admin/add_admin", "*/expert/verify/**", "*/verify.html/**")
+                .requestMatchers("/customer/new", "/expert/new",
+                        "/admin/add_admin", "/expert/verify/**", "/confirm_verifying/**")
                 .permitAll()
                 .requestMatchers("*/expert/**").hasAnyRole("EXPERT", "ADMIN")
                 .requestMatchers("*/admin/**").hasRole("ADMIN")

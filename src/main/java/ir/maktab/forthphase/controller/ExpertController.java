@@ -28,6 +28,7 @@ public class ExpertController {
 
     private final ExpertService expertService;
     private final ModelMapper modelMapper;
+    private String verifyToken;
     final MessageSourceConfiguration messageSource;
 
     public ExpertController(ExpertService expertService,
@@ -91,16 +92,20 @@ public class ExpertController {
         return expertService.getExpertRating(expert.getEmail());
     }
 
-    @GetMapping("/verify/{expertEmail}")
+    @PostMapping("/verify/{expertEmail}")
     public String verifyEmail(@PathVariable String expertEmail) {
-        String verifyToken = TokenProducer.generateToken();
-        return "http://localhost:8080/verify/" + verifyToken + "/" + expertEmail;
+        verifyToken = TokenProducer.generateToken();
+        return "http://localhost:8080/expert/confirm_verifying/" + verifyToken + "/" + expertEmail;
     }
 
-    @GetMapping("/verify/{token}/{expertEmail}")
-    private void verifyEmailByToken(@PathVariable String token, @PathVariable String expertEmail) {
-        token = token + expertEmail;
-        expertService.verifyEmail(expertEmail,token);
+    @PostMapping("/confirm_verifying/{token}/{expertEmail}")
+    public String verifyEmailByToken(@PathVariable String token, @PathVariable String expertEmail) {
+        if (token.contains(expertEmail))
+            throw new InvalidTokenException();
+        verifyToken += expertEmail;
+        log.info("... user : '{}' verifying with token : '{}' ", expertEmail, verifyToken);
+        expertService.verifyEmail(expertEmail);
+        return messageSource.getMessage("ok.message.successful_operation");
     }
 
     @ExceptionHandler(InvalidRequestForDoNotExistSubServiceException.class)

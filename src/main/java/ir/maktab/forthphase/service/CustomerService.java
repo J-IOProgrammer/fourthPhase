@@ -66,7 +66,7 @@ public class CustomerService {
             throw new InvalidPriceException();
         if (OrderUtil.isOkTimeOfOrder(order.getRequiredDate(), new Date()))
             throw new InvalidRequiredDateException();
-        order.setOrderStatus(WAIT_FOR_EXPORT_PROPOSAL);
+        order.setOrderStatus(WAIT_FOR_EXPERT_PROPOSAL);
         order.setCustomer(customer);
         order.setOpinion(null);
         orderService.saveOrder(order);
@@ -89,11 +89,11 @@ public class CustomerService {
             throw new NoSuchUserFound();
 
         Order orderByCode = orderService.findOrderByCode(orderCode);
-        if (!orderByCode.getOrderStatus().equals(WAIT_FOR_CHOOSING_EXPORT))
+        if (!orderByCode.getOrderStatus().equals(WAIT_FOR_CHOOSING_EXPERT))
             throw new InvalidOrderStatusException();
         orderByCode.setAcceptedExpertEmail(expertEmail);
         orderByCode.setCost(byExpertEmail.getCost());
-        orderByCode.setOrderStatus(WAIT_FOR_COMING_EXPORT);
+        orderByCode.setOrderStatus(WAIT_FOR_COMING_EXPERT);
         orderService.saveOrder(orderByCode);
     }
 
@@ -103,7 +103,7 @@ public class CustomerService {
                 findProposalByOrderCodeAndExpertEmail(orderCode, orderByCode.getAcceptedExpertEmail());
         if (proposal.getTimeOfDoing().compareTo(new Date()) < 0)
             throw new InvalidRequiredDateException();
-        if (!orderByCode.getOrderStatus().equals(WAIT_FOR_COMING_EXPORT))
+        if (!orderByCode.getOrderStatus().equals(WAIT_FOR_COMING_EXPERT))
             throw new InvalidOrderStatusException();
         orderByCode.setOrderStatus(START);
         proposal.setTimeOfStart(new Date());

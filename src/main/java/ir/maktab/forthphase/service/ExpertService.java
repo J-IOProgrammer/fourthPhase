@@ -32,8 +32,8 @@ import java.util.Set;
 
 import static ir.maktab.forthphase.data.model.enums.ExpertStatus.WAIT_FOR_ACCEPT;
 import static ir.maktab.forthphase.data.model.enums.ExpertStatus.WAIT_FOR_VERIFY_EMAIL;
-import static ir.maktab.forthphase.data.model.enums.OrderStatus.WAIT_FOR_CHOOSING_EXPORT;
-import static ir.maktab.forthphase.data.model.enums.OrderStatus.WAIT_FOR_EXPORT_PROPOSAL;
+import static ir.maktab.forthphase.data.model.enums.OrderStatus.WAIT_FOR_CHOOSING_EXPERT;
+import static ir.maktab.forthphase.data.model.enums.OrderStatus.WAIT_FOR_EXPERT_PROPOSAL;
 import static ir.maktab.forthphase.util.ProposalUtil.isOkPriceOfProposal;
 import static ir.maktab.forthphase.util.ProposalUtil.isOkTimeOfProposal;
 
@@ -144,7 +144,7 @@ public class ExpertService {
                 throw new InvalidRequiredDateException();
 
             if (orderByCode.getProposals().size() == 1)
-                orderByCode.setOrderStatus(WAIT_FOR_CHOOSING_EXPORT);
+                orderByCode.setOrderStatus(WAIT_FOR_CHOOSING_EXPERT);
 
             proposal.setExpertRate(expert.getRating());
             proposal.setExpertEmail(expertEmail);
@@ -156,9 +156,9 @@ public class ExpertService {
 
     public Set<Order> showRelatedOrders(String subServiceName) {
         Set<Order> orders = orderService
-                .findOrderByStatusAndSubServiceName(WAIT_FOR_EXPORT_PROPOSAL, subServiceName);
+                .findOrderByStatusAndSubServiceName(WAIT_FOR_EXPERT_PROPOSAL, subServiceName);
         orders.addAll(orderService
-                .findOrderByStatusAndSubServiceName(WAIT_FOR_CHOOSING_EXPORT, subServiceName));
+                .findOrderByStatusAndSubServiceName(WAIT_FOR_CHOOSING_EXPERT, subServiceName));
         return orders;
     }
 
@@ -252,9 +252,7 @@ public class ExpertService {
         return expert;
     }
 
-    public void verifyEmail(String expertEmail, String token) {
-        if (token.contains(expertEmail + expertEmail))
-            throw new InvalidTokenException();
+    public void verifyEmail(String expertEmail) {
         Expert expert = findExpertByEmail(expertEmail);
         if (!expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL))
             throw new ReVerifyException();

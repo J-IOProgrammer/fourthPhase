@@ -53,7 +53,7 @@ public class AdminServiceTests {
         Set<Expert> expertsSet = new HashSet<>();
 
         expert = Expert.builder()
-                .expertStatus(ExpertStatus.NEW)
+                .expertStatus(ExpertStatus.WAIT_FOR_VERIFY_EMAIL)
                 .aboutMe("hello")
                 .rating(0)
                 .image(jpgs).build();

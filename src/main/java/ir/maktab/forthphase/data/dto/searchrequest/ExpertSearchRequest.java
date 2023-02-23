@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,4 +20,6 @@ public class ExpertSearchRequest {
     private String subServiceName;
     private boolean isActive;
     private String nationalCode;
+    private Date registerDate;
+    private int doneOrdersCount;
 }

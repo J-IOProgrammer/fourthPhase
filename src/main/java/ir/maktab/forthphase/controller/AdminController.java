@@ -82,12 +82,13 @@ public class AdminController {
     }
 
     @GetMapping("/search_customer")
-    public String getCustomersByFilter(@ModelAttribute CustomerSearchRequest request) {
+    public String getCustomersByFilter(@RequestBody CustomerSearchRequest request) {
+        log.info("... search between customers : '{}'", request.toString());
         return adminService.showListOfCustomersByApplyFilter(request).toString();
     }
 
     @GetMapping("/search_expert")
-    public String getExpertsByFilter(@ModelAttribute ExpertSearchRequest request) {
+    public String getExpertsByFilter(@RequestBody ExpertSearchRequest request) {
         return adminService.showListOfExpertsByApplyFilter(request).toString();
     }
 }
