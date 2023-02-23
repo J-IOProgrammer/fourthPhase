@@ -97,4 +97,14 @@ public class AdminController {
     public String getOrderByFilter(@RequestBody OrderSearchRequest request) {
         return adminService.showListOfOrdersByApplyFilter(request).toString();
     }
+
+    @GetMapping("/count_customer_orders/{customerEmail}")
+    public int countCustomerOrders(@PathVariable String customerEmail) {
+        return adminService.countCustomerOrders(customerEmail);
+    }
+
+    @GetMapping("/count_done_orders/{expertEmail}")
+    public int countDoneOrderByExpert(@PathVariable String expertEmail) {
+        return adminService.countDoneOrdersByExpert(expertEmail);
+    }
 }

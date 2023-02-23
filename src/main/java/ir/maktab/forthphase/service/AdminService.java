@@ -70,4 +70,12 @@ public class AdminService {
     public List<Order> showListOfOrdersByApplyFilter(OrderSearchRequest request) {
         return orderService.applyFilter(request);
     }
+
+    public int countCustomerOrders(String customerEmail) {
+        return orderService.countCustomerOrders(customerEmail);
+    }
+
+    public int countDoneOrdersByExpert(String expertEmail) {
+        return orderService.countDoneOrdersByExpert(expertEmail);
+    }
 }
