@@ -5,6 +5,7 @@ import ir.maktab.forthphase.data.dto.ServiceDto;
 import ir.maktab.forthphase.data.dto.SubServicesDto;
 import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
 import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
+import ir.maktab.forthphase.data.dto.searchrequest.OrderSearchRequest;
 import ir.maktab.forthphase.data.model.Services;
 import ir.maktab.forthphase.data.model.SubServices;
 import ir.maktab.forthphase.service.AdminService;
@@ -90,5 +91,10 @@ public class AdminController {
     @GetMapping("/search_expert")
     public String getExpertsByFilter(@RequestBody ExpertSearchRequest request) {
         return adminService.showListOfExpertsByApplyFilter(request).toString();
+    }
+
+    @GetMapping("/search_order")
+    public String getOrderByFilter(@RequestBody OrderSearchRequest request) {
+        return adminService.showListOfOrdersByApplyFilter(request).toString();
     }
 }

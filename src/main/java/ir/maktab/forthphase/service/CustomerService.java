@@ -46,6 +46,10 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
+    public double findIdByEmail(String customerEmail) {
+        return customerRepository.findCustomerIdByEmail(customerEmail);
+    }
+
     public CustomerLoginDto login(String email, String password) {
         if (EmailValidation.isValidateEmail(email))
             throw new InvalidEmailException();
@@ -172,14 +176,30 @@ public class CustomerService {
 
     public List<Customer> applyFilter(CustomerSearchRequest request) {
         Specification<Customer> searchFilter = CustomerRepository.searchFilter(request);
-        if (request.getLastName() == null && request.getFirstName() == null
-                && request.getEmail() == null && request.getNationalCode() == null)
+        List<Customer> all = customerRepository.findAll(searchFilter);
+        if (checkRequestFields(request))
             return customerRepository.findAll();
-        return customerRepository.findAll(searchFilter);
+        applyRegisterDate(request, all);
+        return all;
     }
 
     public double getCredit(String customerEmail) {
         Customer customer = customerRepository.findByEmail(customerEmail).orElseThrow(NoSuchUserFound::new);
         return customer.getCredit();
+    }
+
+    private boolean checkRequestFields(CustomerSearchRequest request) {
+        return request.getLastName() == null && request.getFirstName() == null
+                && request.getEmail() == null && request.getNationalCode() == null
+                && request.getRegisterDate() == null && request.getSendOrdersCount() == 0;
+    }
+
+    private void applyRegisterDate(CustomerSearchRequest request, List<Customer> all) {
+        if (request.getRegisterDate() != null) {
+            List<Customer> customers = customerRepository.findCustomersByRegisterDate(request.getRegisterDate());
+            for (Customer customer : customers)
+                if (!all.contains(customer))
+                    all.add(customer);
+        }
     }
 }

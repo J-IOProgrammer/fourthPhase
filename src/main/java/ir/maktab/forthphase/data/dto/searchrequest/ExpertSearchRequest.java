@@ -18,7 +18,6 @@ public class ExpertSearchRequest {
     private String email;
     private String status;
     private String subServiceName;
-    private boolean isActive;
     private String nationalCode;
     private Date registerDate;
     private int doneOrdersCount;

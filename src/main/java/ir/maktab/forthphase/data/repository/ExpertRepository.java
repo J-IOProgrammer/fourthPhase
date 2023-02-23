@@ -50,10 +50,6 @@ public interface ExpertRepository extends JpaRepository<Expert, Long>, JpaSpecif
                 String nationalCode = "%" + request.getNationalCode() + "%";
                 predicates.add(builder.like(root.get("nationalCode"), nationalCode));
             }
-            if (request.getRegisterDate() != null) {
-                String registerDate = "%" + request.getRegisterDate() + "%";
-                predicates.add(builder.like(root.get("registerDate"), registerDate));
-            }
 
             query.where(builder.or(predicates.toArray(new Predicate[0])));
             return builder.or(predicates.toArray(new Predicate[0]));
@@ -61,4 +57,6 @@ public interface ExpertRepository extends JpaRepository<Expert, Long>, JpaSpecif
     }
 
     List<Expert> findAll(Specification<Expert> specification);
+
+    List<Expert> findExpertsByRegisterDate(Date registerDate);
 }

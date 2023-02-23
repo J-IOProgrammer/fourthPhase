@@ -12,7 +12,7 @@ import java.util.Date;
 @ToString
 public class OrderSearchRequest {
 
-    private double customerId;
+    private String customerEmail;
     private Date startDate;
     private Date endDate;
     private OrderStatus status;

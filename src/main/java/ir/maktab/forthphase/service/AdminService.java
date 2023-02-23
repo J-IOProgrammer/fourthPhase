@@ -2,10 +2,8 @@ package ir.maktab.forthphase.service;
 
 import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
 import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
-import ir.maktab.forthphase.data.model.Customer;
-import ir.maktab.forthphase.data.model.Expert;
-import ir.maktab.forthphase.data.model.Services;
-import ir.maktab.forthphase.data.model.SubServices;
+import ir.maktab.forthphase.data.dto.searchrequest.OrderSearchRequest;
+import ir.maktab.forthphase.data.model.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +21,7 @@ public class AdminService {
     private final ServicesService servicesService;
     private final SubServicesService subServicesService;
     private final CustomerService customerService;
+    private final OrderService orderService;
 
     public void addNewService(Services service) {
         servicesService.addNewService(service);
@@ -66,5 +65,9 @@ public class AdminService {
 
     public List<Customer> showListOfCustomersByApplyFilter(CustomerSearchRequest request) {
         return customerService.applyFilter(request);
+    }
+
+    public List<Order> showListOfOrdersByApplyFilter(OrderSearchRequest request) {
+        return orderService.applyFilter(request);
     }
 }

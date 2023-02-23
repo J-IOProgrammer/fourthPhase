@@ -2,11 +2,10 @@ package ir.maktab.forthphase.service;
 
 import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
 import ir.maktab.forthphase.data.dto.searchrequest.ExpertSearchRequest;
-import ir.maktab.forthphase.data.model.Customer;
-import ir.maktab.forthphase.data.model.Expert;
-import ir.maktab.forthphase.data.model.Services;
-import ir.maktab.forthphase.data.model.SubServices;
+import ir.maktab.forthphase.data.dto.searchrequest.OrderSearchRequest;
+import ir.maktab.forthphase.data.model.*;
 import ir.maktab.forthphase.data.model.enums.ExpertStatus;
+import ir.maktab.forthphase.data.model.enums.OrderStatus;
 import ir.maktab.forthphase.exceptions.DuplicateServiceNameException;
 import ir.maktab.forthphase.exceptions.DuplicateSubServiceNameException;
 import ir.maktab.forthphase.exceptions.NoSuchUserFound;
@@ -23,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -178,10 +178,12 @@ public class AdminServiceTests {
     @Test
     @SneakyThrows
     public void showCustomersByFilter() {
-        CustomerSearchRequest userSearchRequest = new CustomerSearchRequest();
-        userSearchRequest.setEmail("fatemeh@gmail.com");
-        userSearchRequest.setFirstName("arezoo");
-        List<Customer> customers = adminService.showListOfCustomersByApplyFilter(userSearchRequest);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        CustomerSearchRequest customerSearchRequest = new CustomerSearchRequest();
+        customerSearchRequest.setEmail("fatemeh@gmail.com");
+        customerSearchRequest.setFirstName("faezeh");
+        customerSearchRequest.setRegisterDate(dateFormat.parse("2023-02-21"));
+        List<Customer> customers = adminService.showListOfCustomersByApplyFilter(customerSearchRequest);
         System.out.println(customers.toString());
     }
 
@@ -189,11 +191,24 @@ public class AdminServiceTests {
     @SneakyThrows
     public void showExpertsByFilter() {
         ExpertSearchRequest expertSearchRequest = new ExpertSearchRequest();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         expertSearchRequest.setEmail("sara@gmail.com");
         expertSearchRequest.setFirstName("zahra");
         expertSearchRequest.setStatus("max");
         expertSearchRequest.setSubServiceName("wash");
+        expertSearchRequest.setRegisterDate(dateFormat.parse("2023-02-17"));
         List<Expert> experts = adminService.showListOfExpertsByApplyFilter(expertSearchRequest);
         System.out.println(experts.toString());
+    }
+
+    @Test
+    public void showOrderByFilter() {
+        OrderSearchRequest request = new OrderSearchRequest();
+        request.setStatus(OrderStatus.DONE);
+        request.setServiceName("fix home");
+        request.setStatus(OrderStatus.PAID);
+        request.setCustomerEmail("arezoo@gmail.com");
+        List<Order> orders = adminService.showListOfOrdersByApplyFilter(request);
+        System.out.println(orders.toString());
     }
 }

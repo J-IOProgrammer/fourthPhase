@@ -207,20 +207,11 @@ public class ExpertService {
     public List<Expert> applyFilter(ExpertSearchRequest request) {
         Specification<Expert> expertSpecification = ExpertRepository.searchFilter(request);
         List<Expert> all = expertRepository.findAll(expertSpecification);
-        if (request.getStatus().equalsIgnoreCase("max") &&
-                !all.contains(findMaxRating()))
-            all.add(findMaxRating());
-        if (request.getStatus().equalsIgnoreCase("min") &&
-                !all.contains(findMinRating()))
-            all.add(findMinRating());
-        if (request.getSubServiceName() != null) {
-            List<Expert> bySubServicesName = expertRepository
-                    .findExpertsBySubServicesName(subServicesService
-                            .getSubServiceIdByName(request
-                                    .getSubServiceName()));
-            if (!all.contains(bySubServicesName))
-                all.addAll(bySubServicesName);
-        }
+        if (checkRequestFields(request))
+            return expertRepository.findAll();
+        applyMaxOrMinStatus(request, all);
+        applySubServiceName(request, all);
+        applyRegisterDate(request, all);
         return all;
     }
 
@@ -270,5 +261,40 @@ public class ExpertService {
 
     private Expert findMinRating() {
         return expertRepository.findMinRating().orElseThrow(NoSuchUserFound::new);
+    }
+
+    private boolean checkRequestFields(ExpertSearchRequest request) {
+        return request.getLastName() == null && request.getFirstName() == null
+                && request.getEmail() == null && request.getNationalCode() == null
+                && request.getRegisterDate() == null && request.getStatus() == null
+                && request.getDoneOrdersCount() == 0 && request.getSubServiceName() == null;
+    }
+
+    private void applyMaxOrMinStatus(ExpertSearchRequest request, List<Expert> all) {
+        if (request.getStatus().equalsIgnoreCase("max") &&
+                !all.contains(findMaxRating()))
+            all.add(findMaxRating());
+        if (request.getStatus().equalsIgnoreCase("min") &&
+                !all.contains(findMinRating()))
+            all.add(findMinRating());
+    }
+
+    private void applySubServiceName(ExpertSearchRequest request, List<Expert> all) {
+        List<Expert> bySubServicesName = expertRepository
+                .findExpertsBySubServicesName(subServicesService
+                        .getSubServiceIdByName(request
+                                .getSubServiceName()));
+        for (Expert expert : bySubServicesName)
+            if (!all.contains(expert))
+                all.add(expert);
+    }
+
+    private void applyRegisterDate(ExpertSearchRequest request, List<Expert> all) {
+        if (request.getRegisterDate() != null) {
+            List<Expert> experts = expertRepository.findExpertsByRegisterDate(request.getRegisterDate());
+            for (Expert expert : experts)
+                if (!all.contains(expert))
+                    all.add(expert);
+        }
     }
 }

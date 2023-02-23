@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +42,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>,
                 String nationalCode = "%" + request.getNationalCode() + "%";
                 predicates.add(builder.like(root.get("nationalCode"), nationalCode));
             }
+
             query.where(builder.or(predicates.toArray(new Predicate[0])));
 
             return builder.or(predicates.toArray(new Predicate[0]));
@@ -48,4 +50,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>,
     }
 
     List<Customer> findAll(Specification<Customer> specification);
+
+    List<Customer> findCustomersByRegisterDate(Date registerDate);
 }
