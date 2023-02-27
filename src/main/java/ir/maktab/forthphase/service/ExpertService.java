@@ -262,11 +262,20 @@ public class ExpertService {
         return expert;
     }
 
-    public void verifyEmail(String expertEmail) {
-        Expert expert = findExpertByEmail(expertEmail);
-        if (!expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL))
-            throw new ReVerifyException();
-        changeExpertStatus(expertEmail, WAIT_FOR_ACCEPT);
+    public boolean verify(String verificationCode) {
+        Expert expert = expertRepository.findExpertByVerificationCode(verificationCode)
+                .orElseThrow(NoSuchUserFound::new);
+
+        if (expert == null || expert.isEnabled()) {
+            return false;
+        } else {
+            expert.setVerificationCode(null);
+            changeExpertStatus(expert.getEmail(), WAIT_FOR_ACCEPT);
+            expertRepository.save(expert);
+
+            return true;
+        }
+
     }
 
     public double getExpertRating(String expertEmail) {
@@ -296,7 +305,7 @@ public class ExpertService {
 
         content = content.replace("[[name]]",
                 expert.getFirstName() + " " + expert.getLastName());
-        String verifyURL = siteURL + "/verify?code=" + expert.getVerificationCode();
+        String verifyURL = siteURL + "/expert/verify?code=" + expert.getVerificationCode();
 
         content = content.replace("[[URL]]", verifyURL);
 

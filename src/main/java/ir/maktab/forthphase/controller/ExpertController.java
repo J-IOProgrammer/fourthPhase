@@ -6,18 +6,12 @@ import ir.maktab.forthphase.data.dto.ExpertSaveRequestDto;
 import ir.maktab.forthphase.data.dto.ProposalDto;
 import ir.maktab.forthphase.data.model.Expert;
 import ir.maktab.forthphase.data.model.Proposal;
-import ir.maktab.forthphase.exceptions.InvalidRequestForDoNotExistSubServiceException;
-import ir.maktab.forthphase.exceptions.InvalidTokenException;
-import ir.maktab.forthphase.exceptions.ReVerifyException;
-import ir.maktab.forthphase.exceptions.SendProposalOnInvalidSubServiceException;
 import ir.maktab.forthphase.service.ExpertService;
-import ir.maktab.forthphase.util.TokenProducer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +23,6 @@ public class ExpertController {
 
     private final ExpertService expertService;
     private final ModelMapper modelMapper;
-    private String verifyToken;
     final MessageSourceConfiguration messageSource;
 
     public ExpertController(ExpertService expertService,
@@ -46,7 +39,8 @@ public class ExpertController {
         log.info("... adding new customer with info: '{}' ...", saveRequestDto);
         Expert expert = expertService.PrepareNewObject(saveRequestDto);
         expertService.register(expert, getSiteURL(request));
-        return messageSource.getMessage("ok.message.successful_operation");
+        return "You have signed up successfully!\n" +
+                "Please check your email to verify your account.";
     }
 
     @GetMapping("/orders_by_sub_service")
@@ -100,26 +94,16 @@ public class ExpertController {
         return expertService.showOrderHistory(expert.getEmail()).toString();
     }
 
-    @PostMapping("/verify/{expertEmail}")
-    public String verifyEmail(@PathVariable String expertEmail) {
-        verifyToken = TokenProducer.generateToken();
-        return "http://localhost:8080/expert/confirm_verifying/" + verifyToken + "/" + expertEmail;
-    }
+    @GetMapping("/verify")
+    public String verifyUser(@Param("code") String code) {
+        if (expertService.verify(code)) {
 
-    @PostMapping("/confirm_verifying/{token}/{expertEmail}")
-    public String verifyEmailByToken(@PathVariable String token, @PathVariable String expertEmail) {
-        if (token.contains(expertEmail))
-            throw new InvalidTokenException();
-        verifyToken += expertEmail;
-        log.info("... user : '{}' verifying with token : '{}' ", expertEmail, verifyToken);
-        expertService.verifyEmail(expertEmail);
-        return messageSource.getMessage("ok.message.successful_operation");
-    }
-
-    @PostMapping("/process_register")
-    public String processRegister(Expert expert, HttpServletRequest request) {
-        expertService.register(expert, getSiteURL(request));
-        return "register_success";
+            return "Congratulations, your account has been verified.\n" +
+                    "you must wait for accepting from admin";
+        } else {
+            return "Sorry, we could not verify account. It maybe already verified,\n" +
+                    "    or verification code is incorrect.";
+        }
     }
 
     private String getSiteURL(HttpServletRequest request) {

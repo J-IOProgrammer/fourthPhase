@@ -17,6 +17,8 @@ import java.util.Optional;
 public interface ExpertRepository extends JpaRepository<Expert, Long>, JpaSpecificationExecutor<Expert> {
     Optional<Expert> findByEmail(String email);
 
+    Optional<Expert> findExpertByVerificationCode(String verificationCode);
+
     @Query(value = "SELECT * FROM expert WHERE rating = (SELECT MAX(rating) FROM expert)", nativeQuery = true)
     Optional<Expert> findMaxRating();
 
