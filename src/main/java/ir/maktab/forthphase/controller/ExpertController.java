@@ -12,6 +12,7 @@ import ir.maktab.forthphase.exceptions.ReVerifyException;
 import ir.maktab.forthphase.exceptions.SendProposalOnInvalidSubServiceException;
 import ir.maktab.forthphase.service.ExpertService;
 import ir.maktab.forthphase.util.TokenProducer;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -40,10 +41,11 @@ public class ExpertController {
     }
 
     @PostMapping("/new")
-    public String addNewExpert(@Valid @RequestBody ExpertSaveRequestDto saveRequestDto) {
+    public String addNewExpert(@Valid @RequestBody ExpertSaveRequestDto saveRequestDto,
+                               HttpServletRequest request) {
         log.info("... adding new customer with info: '{}' ...", saveRequestDto);
         Expert expert = expertService.PrepareNewObject(saveRequestDto);
-        expertService.register(expert);
+        expertService.register(expert, getSiteURL(request));
         return messageSource.getMessage("ok.message.successful_operation");
     }
 
@@ -114,38 +116,14 @@ public class ExpertController {
         return messageSource.getMessage("ok.message.successful_operation");
     }
 
-    @PostMapping("/send_email/{expertEmail}")
-    public void sendEmail(@PathVariable String expertEmail){
-        expertService.sendEmail(expertEmail);
+    @PostMapping("/process_register")
+    public String processRegister(Expert expert, HttpServletRequest request) {
+        expertService.register(expert, getSiteURL(request));
+        return "register_success";
     }
 
-    @ExceptionHandler(InvalidRequestForDoNotExistSubServiceException.class)
-    public ResponseEntity<?> handleInvalidRequestForDoNotExistSubServiceException() {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                messageSource.getMessage("errors.message.invalid_request_for_do_not_exist_sub_service"));
-    }
-
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<?> handleInvalidTokenException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                messageSource.getMessage("errors.message.invalid_token"));
-    }
-
-    @ExceptionHandler(SendProposalOnInvalidSubServiceException.class)
-    public ResponseEntity<?> handleSendProposalOnInvalidSubServiceException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                messageSource.getMessage("errors.message.send_proposal_on_invalid_sub_service"));
-    }
-
-    @ExceptionHandler(SendProposalOnInvalidSubServiceException.class)
-    public ResponseEntity<?> handleImageSizeException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                messageSource.getMessage("errors.message.image_size_not_ok"));
-    }
-
-    @ExceptionHandler(ReVerifyException.class)
-    public ResponseEntity<?> handleReVerifyException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                messageSource.getMessage("errors.message.re_verify_email"));
+    private String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
     }
 }

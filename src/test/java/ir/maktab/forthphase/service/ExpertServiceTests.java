@@ -85,13 +85,13 @@ public class ExpertServiceTests {
     @SneakyThrows
     @Test
     public void signUpNewExpertTest() {
-        expertService.register(expert);
+        expertService.register(expert,"test");
     }
 
     @Test
     public void addDuplicateExpertEmailTest() {
         Assertions.assertThrows(DuplicateEmailException.class,
-                () -> expertService.register(duplicateExpert));
+                () -> expertService.register(duplicateExpert , "test"));
     }
 
     @Test

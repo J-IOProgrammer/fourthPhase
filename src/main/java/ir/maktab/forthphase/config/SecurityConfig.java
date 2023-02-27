@@ -39,11 +39,12 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests()
                 .requestMatchers("/customer/new", "/expert/new",
-                        "/expert/verify/**", "/expert/confirm_verifying/**")
+                        "/expert/verify/**", "/expert/confirm_verifying/**"
+                , "/verify/**")
                 .permitAll()
-                .requestMatchers("*/expert/**").hasAnyRole("EXPERT", "ADMIN")
-                .requestMatchers("*/admin/**").hasRole("ADMIN")
-                .requestMatchers("*/customer/**").hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers("/expert/**").hasAnyRole("EXPERT", "ADMIN")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()

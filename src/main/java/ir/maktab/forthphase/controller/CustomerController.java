@@ -140,24 +140,4 @@ public class CustomerController {
         Customer customer = (Customer) SecurityUtil.getCurrentUser();
         return customerService.showHistoryOfOrder(customer.getEmail()).toString();
     }
-
-    @ExceptionHandler(NotEnoughMoneyException.class)
-    public ResponseEntity<?> handleNotEnoughMoneyException() {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(messageSource
-                        .getMessage("errors.message.not_enough_money"));
-    }
-
-    @ExceptionHandler(NoSuchProposalFoundException.class)
-    public ResponseEntity<?> handleNoSuchProposalFoundException() {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                messageSource.getMessage("errors.message.no_such_proposal_found"));
-    }
-
-    @ExceptionHandler(DuplicateOpinionAddingException.class)
-    public ResponseEntity<?> handleDuplicateOpinionAddingException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                messageSource.getMessage("errors.message.duplicate_opinion_adding"));
-    }
 }

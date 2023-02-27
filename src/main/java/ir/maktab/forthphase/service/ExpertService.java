@@ -14,12 +14,16 @@ import ir.maktab.forthphase.exceptions.*;
 import ir.maktab.forthphase.util.ExpertUtil;
 import ir.maktab.forthphase.util.SubServicesUtil;
 import ir.maktab.forthphase.validation.NationalCodeValidation;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.bytebuddy.utility.RandomString;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +31,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -52,10 +57,11 @@ public class ExpertService {
     private final ProposalService proposalService;
     private final OpinionService opinionService;
     private final BCryptPasswordEncoder passwordEncoder;
+    @Autowired
     private JavaMailSender mailSender;
     final MessageSourceConfiguration messageSource;
 
-    public void register(Expert expert) {
+    public void register(Expert expert, String siteURL) {
         if (NationalCodeValidation.isValidNationalCode(expert.getNationalCode()))
             throw new InvalidNationalCodeException();
         if (!ExpertUtil.checkImageFormat(
@@ -64,11 +70,17 @@ public class ExpertService {
         Optional<Expert> byEmail = expertRepository.findByEmail(expert.getEmail());
         if (byEmail.isPresent())
             throw new DuplicateEmailException();
-
+        String randomCode = RandomString.make(64);
+        expert.setVerificationCode(randomCode);
         expert.setExpertStatus(WAIT_FOR_VERIFY_EMAIL);
         expert.setPassword(passwordEncoder.encode(expert.getPassword()));
         expert.setRole(Role.ROLE_EXPERT);
         expertRepository.save(expert);
+        try {
+            sendVerificationEmail(expert, siteURL);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void deleteExpertFromSubService(String expertEmail, String subServiceName) {
@@ -262,18 +274,38 @@ public class ExpertService {
         return expert.getRating();
     }
 
-    public void sendEmail(String expertEmail){
-        String from = "ermacfe2@gmail.com";
+    private void sendVerificationEmail(Expert expert, String siteURL)
+            throws MessagingException, UnsupportedEncodingException {
+        System.out.println("in send email method");
+        String toAddress = expert.getEmail();
+        String fromAddress = "fatemehmirfotohi125@gmail.com";
+        String senderName = "maktab sharif";
+        String subject = "Please verify your registration";
+        String content = "Dear [[name]],<br>"
+                + "Please click the link below to verify your registration:<br>"
+                + "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>"
+                + "Thank you,<br>"
+                + "Fatemeh Mirfotohi";
 
-        SimpleMailMessage message = new SimpleMailMessage();
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        message.setFrom(from);
-        message.setTo(expertEmail);
-        message.setSubject("This is a plain text email");
-        message.setText("Hello guys! This is a plain text email.");
+        helper.setFrom(fromAddress, senderName);
+        helper.setTo(toAddress);
+        helper.setSubject(subject);
+
+        content = content.replace("[[name]]",
+                expert.getFirstName() + " " + expert.getLastName());
+        String verifyURL = siteURL + "/verify?code=" + expert.getVerificationCode();
+
+        content = content.replace("[[URL]]", verifyURL);
+
+        helper.setText(content, true);
 
         mailSender.send(message);
+
     }
+
 
     private Expert findMaxRating() {
         return expertRepository.findMaxRating().orElseThrow(NoSuchUserFound::new);

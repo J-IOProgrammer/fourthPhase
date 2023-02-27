@@ -22,4 +22,5 @@ public class ExpertLoginDto {
     double rating;
     boolean isAccepted;
     String nationalCode;
+    String verificationCode;
 }

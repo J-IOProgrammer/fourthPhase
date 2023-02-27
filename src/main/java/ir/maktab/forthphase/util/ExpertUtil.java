@@ -1,9 +1,6 @@
 package ir.maktab.forthphase.util;
 
-import ir.maktab.forthphase.data.dto.ExpertLoginDto;
-import ir.maktab.forthphase.data.model.Expert;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -15,17 +12,13 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Component
 public class ExpertUtil {
-
-    static ModelMapper modelMapper;
 
     public static boolean checkImageFormat(BufferedImage bi) {
         return bi.getType() == 5;
@@ -58,7 +51,6 @@ public class ExpertUtil {
     }
 
     public static boolean checkImageSize(String fileName) {
-        //fileName = "src/face.jpg";
         Path filePath = Paths.get(fileName);
         FileChannel fileChannel;
         try {
@@ -74,14 +66,6 @@ public class ExpertUtil {
         }
         long sizeInKB = fileSize / 1024;
         return sizeInKB <= 300;
-    }
-
-    public static List<ExpertLoginDto> convertExpertToExpertLoginDto(List<Expert> experts) {
-        List<ExpertLoginDto> dtoArrayList = new ArrayList<>();
-        for (Expert expert : experts) {
-            dtoArrayList.add(modelMapper.map(expert, ExpertLoginDto.class));
-        }
-        return dtoArrayList;
     }
 
     public static int calculateDistanceBetweenTime(Date firstTime, Date secondTime, String timeRange) {

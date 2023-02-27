@@ -212,4 +212,50 @@ public class CentralExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
+
+    @ExceptionHandler(SendProposalOnInvalidSubServiceException.class)
+    public ResponseEntity<?> handleSendProposalOnInvalidSubServiceException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                messageSource.getMessage("errors.message.send_proposal_on_invalid_sub_service"));
+    }
+
+
+    @ExceptionHandler(InvalidRequestForDoNotExistSubServiceException.class)
+    public ResponseEntity<?> handleInvalidRequestForDoNotExistSubServiceException() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                messageSource.getMessage("errors.message.invalid_request_for_do_not_exist_sub_service"));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<?> handleInvalidTokenException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                messageSource.getMessage("errors.message.invalid_token"));
+    }
+
+    @ExceptionHandler(ReVerifyException.class)
+    public ResponseEntity<?> handleReVerifyException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                messageSource.getMessage("errors.message.re_verify_email"));
+    }
+
+
+    @ExceptionHandler(NotEnoughMoneyException.class)
+    public ResponseEntity<?> handleNotEnoughMoneyException() {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(messageSource
+                        .getMessage("errors.message.not_enough_money"));
+    }
+
+    @ExceptionHandler(NoSuchProposalFoundException.class)
+    public ResponseEntity<?> handleNoSuchProposalFoundException() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                messageSource.getMessage("errors.message.no_such_proposal_found"));
+    }
+
+    @ExceptionHandler(DuplicateOpinionAddingException.class)
+    public ResponseEntity<?> handleDuplicateOpinionAddingException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                messageSource.getMessage("errors.message.duplicate_opinion_adding"));
+    }
 }
