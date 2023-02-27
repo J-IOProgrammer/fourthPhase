@@ -18,6 +18,11 @@ import java.util.Set;
 @Builder
 public class Expert extends Person implements UserDetails {
 
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
+    //private boolean enabled;
+
     private String aboutMe;
 
     @Column(columnDefinition = "double precision default 0")
@@ -84,6 +89,6 @@ public class Expert extends Person implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isActive;
     }
 }

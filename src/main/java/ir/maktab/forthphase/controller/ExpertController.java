@@ -114,6 +114,11 @@ public class ExpertController {
         return messageSource.getMessage("ok.message.successful_operation");
     }
 
+    @PostMapping("/send_email/{expertEmail}")
+    public void sendEmail(@PathVariable String expertEmail){
+        expertService.sendEmail(expertEmail);
+    }
+
     @ExceptionHandler(InvalidRequestForDoNotExistSubServiceException.class)
     public ResponseEntity<?> handleInvalidRequestForDoNotExistSubServiceException() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

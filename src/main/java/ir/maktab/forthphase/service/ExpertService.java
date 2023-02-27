@@ -18,6 +18,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,7 @@ public class ExpertService {
     private final ProposalService proposalService;
     private final OpinionService opinionService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private JavaMailSender mailSender;
     final MessageSourceConfiguration messageSource;
 
     public void register(Expert expert) {
@@ -257,6 +260,19 @@ public class ExpertService {
     public double getExpertRating(String expertEmail) {
         Expert expert = findExpertByEmail(expertEmail);
         return expert.getRating();
+    }
+
+    public void sendEmail(String expertEmail){
+        String from = "ermacfe2@gmail.com";
+
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setFrom(from);
+        message.setTo(expertEmail);
+        message.setSubject("This is a plain text email");
+        message.setText("Hello guys! This is a plain text email.");
+
+        mailSender.send(message);
     }
 
     private Expert findMaxRating() {
