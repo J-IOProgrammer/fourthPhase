@@ -332,22 +332,26 @@ public class ExpertService {
     }
 
     private void applyMaxOrMinStatus(ExpertSearchRequest request, List<Expert> all) {
-        if (request.getStatus().equalsIgnoreCase("max") &&
+        if (request.getStatus() != null &&
+                request.getStatus().equalsIgnoreCase("max") &&
                 !all.contains(findMaxRating()))
             all.add(findMaxRating());
-        if (request.getStatus().equalsIgnoreCase("min") &&
+        if (request.getStatus() != null &&
+                request.getStatus().equalsIgnoreCase("min") &&
                 !all.contains(findMinRating()))
             all.add(findMinRating());
     }
 
     private void applySubServiceName(ExpertSearchRequest request, List<Expert> all) {
-        List<Expert> bySubServicesName = expertRepository
-                .findExpertsBySubServicesName(subServicesService
-                        .getSubServiceIdByName(request
-                                .getSubServiceName()));
-        for (Expert expert : bySubServicesName)
-            if (!all.contains(expert))
-                all.add(expert);
+        if (request.getSubServiceName() != null) {
+            List<Expert> bySubServicesName = expertRepository
+                    .findExpertsBySubServicesName(subServicesService
+                            .getSubServiceIdByName(request
+                                    .getSubServiceName()));
+            for (Expert expert : bySubServicesName)
+                if (!all.contains(expert))
+                    all.add(expert);
+        }
     }
 
     private void applyRegisterDate(ExpertSearchRequest request, List<Expert> all) {

@@ -123,10 +123,8 @@ public class ExpertServiceTests {
     @SneakyThrows
     public void applyFilterForExpertTest() {
         ExpertSearchRequest request = new ExpertSearchRequest();
-        request.setLastName("fatemi");
-        request.setFirstName("zahra");
-        request.setEmail("fereshteh@gmail.com");
-        request.setStatus("MAX");
+        request.setSubServiceName("fix home");
+        request.setStatus("max");
         List<Expert> experts = expertService.applyFilter(request);
         experts.forEach(System.out::println);
     }
