@@ -1,11 +1,11 @@
 package ir.maktab.forthphase.service;
 
+import ir.maktab.forthphase.data.dto.CustomerLoginDto;
 import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
 import ir.maktab.forthphase.data.model.Customer;
+import ir.maktab.forthphase.data.model.Opinion;
 import ir.maktab.forthphase.data.model.Order;
-import ir.maktab.forthphase.exceptions.InvalidRequiredDateException;
-import ir.maktab.forthphase.data.dto.CustomerLoginDto;
-import ir.maktab.forthphase.data.model.*;
+import ir.maktab.forthphase.data.model.Proposal;
 import ir.maktab.forthphase.exceptions.*;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -163,7 +163,7 @@ public class CustomerServiceTests {
     @Test
     @SneakyThrows
     public void addOpinionForOrderTest() {
-       // customerService.addOpinionForOrder(opinion, "abcdef123456");
+        // customerService.addOpinionForOrder(opinion, "abcdef123456");
     }
 
     @Test
@@ -176,5 +176,13 @@ public class CustomerServiceTests {
         request.setNationalCode("0579887871");
         List<Customer> customers = customerService.applyFilter(request);
         customers.forEach(System.out::println);
+    }
+
+    @Test
+    @SneakyThrows
+    public void findCustomerOrdersByStatusTest() {
+        List<Order> orderList = customerService
+                .showCustomerOrderByStatus("arezoo@gmail.com", "PAID");
+        orderList.forEach(System.out::println);
     }
 }

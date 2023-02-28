@@ -33,6 +33,10 @@ public class OrderService {
                 OrderCodeNotFoundException::new);
     }
 
+    public List<Order> showCustomerOrdersByOrderStatus(String customerEmail, OrderStatus status) {
+        return orderRepository.findOrdersByCustomerEmailAndOrderStatus(customerEmail, status);
+    }
+
     public Set<Order> findOrderByStatusAndSubServiceName(OrderStatus orderStatus, String subServiceName) {
         return orderRepository.findByOrderStatusAndSubServiceName(orderStatus, subServiceName);
     }

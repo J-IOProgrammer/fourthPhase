@@ -8,6 +8,7 @@ import ir.maktab.forthphase.data.dto.OpinionDto;
 import ir.maktab.forthphase.data.dto.PayingInformation;
 import ir.maktab.forthphase.data.model.Customer;
 import ir.maktab.forthphase.data.model.Order;
+import ir.maktab.forthphase.data.model.enums.OrderStatus;
 import ir.maktab.forthphase.exceptions.DuplicateOpinionAddingException;
 import ir.maktab.forthphase.exceptions.NoSuchProposalFoundException;
 import ir.maktab.forthphase.exceptions.NotEnoughMoneyException;
@@ -139,5 +140,11 @@ public class CustomerController {
     public String showOrderHistory() {
         Customer customer = (Customer) SecurityUtil.getCurrentUser();
         return customerService.showHistoryOfOrder(customer.getEmail()).toString();
+    }
+
+    @GetMapping("/orders_by_status")
+    public String showCustomerOrdersByStatus(@RequestBody String status) {
+        Customer customer = (Customer) SecurityUtil.getCurrentUser();
+        return customerService.showCustomerOrderByStatus(customer.getEmail(), status).toString();
     }
 }

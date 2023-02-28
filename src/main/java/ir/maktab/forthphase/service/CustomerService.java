@@ -4,6 +4,7 @@ import ir.maktab.forthphase.data.dto.CustomerLoginDto;
 import ir.maktab.forthphase.data.dto.OpinionDto;
 import ir.maktab.forthphase.data.dto.searchrequest.CustomerSearchRequest;
 import ir.maktab.forthphase.data.model.*;
+import ir.maktab.forthphase.data.model.enums.OrderStatus;
 import ir.maktab.forthphase.data.model.enums.Role;
 import ir.maktab.forthphase.data.repository.CustomerRepository;
 import ir.maktab.forthphase.exceptions.*;
@@ -144,6 +145,10 @@ public class CustomerService {
     public Set<Order> showAllOrders(String emailCustomer) {
         Customer customer = customerRepository.findByEmail(emailCustomer).orElseThrow(NoSuchUserFound::new);
         return customer.getOrders();
+    }
+
+    public List<Order> showCustomerOrderByStatus(String customerEmail, String status) {
+        return orderService.showCustomerOrdersByOrderStatus(customerEmail, OrderStatus.valueOf(status));
     }
 
     public void payingServiceFee(String orderCode) {
