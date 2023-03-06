@@ -198,6 +198,14 @@ public class CentralExceptionHandler {
                         .getMessage("errors.message.invalid_order_status"));
     }
 
+    @ExceptionHandler(DuplicateSubServiceNameException.class)
+    private ResponseEntity<?> handleDuplicateSubServiceNameException() {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(messageSource
+                        .getMessage("errors.message.duplicate_service_name"));
+    }
+
     @ExceptionHandler(InvalidTimeException.class)
     private ResponseEntity<?> handleInvalidTimeException() {
         return ResponseEntity
@@ -206,8 +214,23 @@ public class CentralExceptionHandler {
                         .getMessage("errors.message.invalid_time_format"));
     }
 
+    @ExceptionHandler(ExpertStatusSetAgainException.class)
+    private ResponseEntity<?> handleExpertStatusSetAgainException() {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(messageSource
+                        .getMessage("errors.message.expert_status_set_again"));
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     private ResponseEntity<?> handleIllegalStateException(IllegalStateException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    private ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());

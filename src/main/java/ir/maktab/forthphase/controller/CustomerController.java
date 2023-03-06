@@ -8,19 +8,15 @@ import ir.maktab.forthphase.data.dto.OpinionDto;
 import ir.maktab.forthphase.data.dto.PayingInformation;
 import ir.maktab.forthphase.data.model.Customer;
 import ir.maktab.forthphase.data.model.Order;
-import ir.maktab.forthphase.data.model.enums.OrderStatus;
-import ir.maktab.forthphase.exceptions.DuplicateOpinionAddingException;
-import ir.maktab.forthphase.exceptions.NoSuchProposalFoundException;
-import ir.maktab.forthphase.exceptions.NotEnoughMoneyException;
 import ir.maktab.forthphase.service.CustomerService;
 import ir.maktab.forthphase.util.OrderUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/customer")
@@ -130,7 +126,8 @@ public class CustomerController {
     }
 
     @GetMapping("/show_credit")
-    public double showCredit() {
+    public double showCredit(Principal principal) {
+        // principal
         Customer customer = (Customer) SecurityUtil.getCurrentUser();
         log.info("... current user : {} ...", customer.toString());
         return customerService.getCredit(customer.getEmail());
@@ -142,9 +139,9 @@ public class CustomerController {
         return customerService.showHistoryOfOrder(customer.getEmail()).toString();
     }
 
-    @GetMapping("/orders_by_status")
-    public String showCustomerOrdersByStatus(@RequestBody String status) {
+    @GetMapping("/orders_by_status/{orderStatus}")
+    public String showCustomerOrdersByStatus(@PathVariable String orderStatus) {
         Customer customer = (Customer) SecurityUtil.getCurrentUser();
-        return customerService.showCustomerOrderByStatus(customer.getEmail(), status).toString();
+        return customerService.showCustomerOrderByStatus(customer.getEmail(), orderStatus).toString();
     }
 }

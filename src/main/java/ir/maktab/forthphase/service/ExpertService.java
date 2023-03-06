@@ -207,7 +207,7 @@ public class ExpertService {
         if (expert.getExpertStatus().equals(WAIT_FOR_VERIFY_EMAIL)
                 || expert.getExpertStatus().equals(WAIT_FOR_ACCEPT))
             throw new DeActiveAccountException();
-        expert.setPassword(newPassword);
+        expert.setPassword(passwordEncoder.encode(newPassword));
         expertRepository.save(expert);
     }
 

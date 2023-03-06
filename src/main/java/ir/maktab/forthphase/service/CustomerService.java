@@ -138,7 +138,7 @@ public class CustomerService {
         if (!PasswordValidation.isValidatePassword(newPassword))
             throw new InvalidPasswordException();
         Customer customer = customerRepository.findByEmail(emailCustomer).orElseThrow(NoSuchUserFound::new);
-        customer.setPassword(newPassword);
+        customer.setPassword(passwordEncoder.encode(newPassword));
         customerRepository.save(customer);
     }
 
@@ -148,7 +148,8 @@ public class CustomerService {
     }
 
     public List<Order> showCustomerOrderByStatus(String customerEmail, String status) {
-        return orderService.showCustomerOrdersByOrderStatus(customerEmail, OrderStatus.valueOf(status));
+        OrderStatus orderStatus = valueOf(status);
+        return orderService.showCustomerOrdersByOrderStatus(customerEmail, orderStatus);
     }
 
     public void payingServiceFee(String orderCode) {
@@ -160,6 +161,8 @@ public class CustomerService {
                 .orElseThrow(NoSuchUserFound::new);
         if (customer.getCredit() < order.getCost())
             throw new NotEnoughMoneyException();
+        if (order.getOrderStatus().equals(PAID))
+            throw new InvalidOrderStatusException();
         customer.setCredit(customer.getCredit() - order.getCost());
         order.setOrderStatus(PAID);
         orderService.saveOrder(order);
